@@ -3,6 +3,7 @@ import { FormEvent, useState } from 'react';
 import { auth } from '@/firebase';
 import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, FacebookAuthProvider } from 'firebase/auth';
 
+
 export default function SignUp() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');

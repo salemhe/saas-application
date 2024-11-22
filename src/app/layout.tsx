@@ -16,17 +16,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-
     <html lang="en" className="relative">
       <body className={clsx(dmSans.className, "antialiased bg-[#EAEEFE]")}>
-
-    <html lang="en" >
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased `}
-      >
-
         {children}
       </body>
     </html>
   );
 }
+
