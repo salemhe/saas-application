@@ -1,20 +1,36 @@
 "use client";
-import { FormEvent, useState, useEffect } from 'react';
-import { auth } from '@/firebase';
+import { useState, useEffect } from 'react';
 import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, FacebookAuthProvider, sendPasswordResetEmail } from 'firebase/auth';
 import { MdFacebook } from 'react-icons/md';
 import { LiaEyeSlashSolid, LiaEyeSolid  } from "react-icons/lia";
+import { auth } from '../../../firebase';
+import Image from 'next/image';
+
+import Logo from '@/assets/logosaas.png'
+import { useRouter } from 'next/navigation';
 
 export default function SignUp() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const [error, setError] = useState<string | null>(null);
-  const [isLogin, setIsLogin] = useState<boolean>(true); // Toggle between Login and SignUp
+  // const [error, setError] = useState<string | null>(null);
+  // const [isLogin, setIsLogin] = useState<boolean>(true); // Toggle between Login and SignUp
   const [rememberMe, setRememberMe] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false); // State for password visibility
   const [isForgotPassword, setIsForgotPassword] = useState<boolean>(false);
   const [statusMessage, setStatusMessage] = useState<{ type: string; text: string } | null>(null);
+  const router = useRouter();
+ 
+  const [isLogin, setIsLogin] = useState<boolean>(false);
 
+  useEffect(() => {
+    // Extract 'mode' from the query and set the initial state
+    const mode = new URLSearchParams(window.location.search).get('mode');
+    if (mode === 'login') {
+      setIsLogin(true);
+    } else {
+      setIsLogin(false);
+    }
+  }, []);
    // Load saved email from localStorage if "Remember Me" was previously checked
    useEffect(() => {
       const savedEmail = localStorage.getItem('rememberedEmail');
@@ -54,7 +70,6 @@ export default function SignUp() {
       setStatusMessage({ type: 'error', text: 'Error with authentication. Check your details and try again.' });
     }
   };
-
 
   const handleGoogleSignIn = async (): Promise<void> => {
     const provider = new GoogleAuthProvider();
@@ -101,11 +116,7 @@ export default function SignUp() {
         <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
           <div className="mx-auto w-full max-w-sm lg:w-96">
             <div>
-              <img
-                alt="Your Company"
-                src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=600"
-                className="h-10 w-auto"
-              />
+              <Image onClick={() => router.push('/')} src={Logo} alt='Saas Logo' height={40} width={40} className='cursor-pointer' />
               <h2 className="mt-8 text-2xl/9 font-bold tracking-tight text-gray-500">
                 {isLogin ? 'Sign in to your account' : 'Create an account'}
               </h2>
@@ -238,10 +249,10 @@ export default function SignUp() {
               <div className="mt-10">
                 <div className="relative">
                   <div aria-hidden="true" className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-200" />
+                    <div className="w-full border-t border-gray-300" />
                   </div>
                   <div className="relative flex justify-center text-sm/6 font-medium">
-                    <span className="bg-black px-6 text-white">Or continue with</span>
+                    <span className="bg-[#EAEEFE] px-6 text-gray-500">Or continue with</span>
                   </div>
                 </div>
 

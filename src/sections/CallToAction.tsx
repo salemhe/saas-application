@@ -1,9 +1,12 @@
+"use client";
 import ArrowRight from '@/assets/arrow-right.svg';
 import starImage from '@/assets/star.png';
 import springImage from '@/assets/spring.png';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 export const CallToAction = () => {
+  const route = useRouter()
   return (
     <section className="bg-gradient-to-b from-white to-[#d2dcff] py-24 overflow-x-clip relative">
       <div className="container">
@@ -31,7 +34,7 @@ export const CallToAction = () => {
         </div>
 
         <div className="flex gap-2 mt-10 justify-center">
-          <button className="btn btn-primary">Get for Free</button>
+          <button onClick={() => route.push('/auth?mode=signup')} className="btn btn-primary">Get for Free</button>
           <button className="btn btn-text flex items-center gap-1">
             <span>Learn More</span>
             <ArrowRight className="h-5 w-5" />

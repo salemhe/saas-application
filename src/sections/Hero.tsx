@@ -36,10 +36,12 @@
 //   </section>;
 // };
 
-
+"use client"
 import ArrowIcon from '@/assets/arrow-right.svg';
+import { useRouter } from 'next/navigation';
 
 export const Hero = () => {
+  const route = useRouter()
   return (
     <section className="pt-16 pb-20 md:pt-24 md:pb-28 bg-[radial-gradient(ellipse_200%_100%_at_bottom_left,#183EC2,#EAEEFE_100%)] overflow-hidden">
       <div className="container text-center">
@@ -58,7 +60,7 @@ export const Hero = () => {
           </p>
           {/* Buttons */}
           <div className="flex justify-center gap-4 items-center mt-10">
-            <button className="btn btn-primary px-6 py-3 text-lg font-semibold">
+            <button onClick={() => route.push('/auth?mode=signup')}  className="btn btn-primary px-6 py-3 text-lg font-semibold">
               Get for free
             </button>
             <button className="btn btn-text flex items-center gap-2">
