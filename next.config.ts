@@ -1,12 +1,16 @@
+import type { Configuration } from 'webpack';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  webpack(config) {
+  webpack(config: Configuration) {
+    if (!config.module?.rules) throw new Error("Webpack configuration is missing module.rules.");
+
     // Find the existing rule for SVGs
     const fileLoaderRule = config.module.rules.find((rule) =>
-      rule.test?.test?.(".svg")
+      rule && typeof rule === 'object' && 'test' in rule && rule.test instanceof RegExp && rule.test.test('.svg')
     );
 
-    if (!fileLoaderRule) {
+    if (!fileLoaderRule || typeof fileLoaderRule !== 'object') {
       throw new Error("SVG file loader rule not found.");
     }
 
@@ -27,11 +31,12 @@ const nextConfig = {
     );
 
     // Exclude SVGs from the original rule to prevent conflicts
-    fileLoaderRule.exclude = /\.svg$/i;
+    if ('exclude' in fileLoaderRule) {
+      fileLoaderRule.exclude = /\.svg$/i;
+    }
 
     return config;
   },
 };
 
 export default nextConfig;
-
