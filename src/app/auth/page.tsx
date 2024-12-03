@@ -1,14 +1,14 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, FacebookAuthProvider, sendPasswordResetEmail, updateProfile } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, FacebookAuthProvider, sendPasswordResetEmail, updateProfile, getIdToken } from 'firebase/auth';
 import { MdFacebook } from 'react-icons/md';
 import { LiaEyeSlashSolid, LiaEyeSolid  } from "react-icons/lia";
-import { auth } from '../../../firebase';
+import { auth, db } from '../../../firebase';
 import Image from 'next/image';
 // import { onAuthStateChanged } from "firebase/auth";
 import Logo from '@/assets/logosaas.png'
 import { useRouter } from 'next/navigation';
-
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 export default function SignUp() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -66,13 +66,22 @@ export default function SignUp() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatusMessage(null);
-  
-    // Remember Me logic
     handleRememberMe();
   
     try {
       if (isLogin) {
-        await signInWithEmailAndPassword(auth, email, password);
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const token = await getIdToken(userCredential.user); // Get JWT Token
+        console.log("JWT Token:", token);
+
+        // Store credentials in Firestore for email/password sign-in
+        await setDoc(doc(db, "users", userCredential.user.uid), {
+          name: userCredential.user.displayName || "Anonymous",
+          email: userCredential.user.email,
+          provider: "email/password",
+          token: token, // Save the JWT token
+        });
+
         setStatusMessage({ type: 'success', text: 'Signed in successfully!' });
       } else {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -81,7 +90,19 @@ export default function SignUp() {
         if (name.trim()) {
           await updateProfile(userCredential.user, { displayName: name });
         }
-  
+
+        // Get JWT Token
+        const token = await getIdToken(userCredential.user);
+        console.log("JWT Token:", token);
+
+        // Store credentials in Firestore for email/password sign-up
+        await setDoc(doc(db, "users", userCredential.user.uid), {
+          name: name,
+          email: email,
+          provider: "email/password",
+          token: token, // Save the JWT token
+        });
+
         setStatusMessage({ type: 'success', text: 'Account created successfully!' });
       }
   
@@ -94,25 +115,39 @@ export default function SignUp() {
     }
   };
 
-  const handleGoogleSignIn = async (): Promise<void> => {
-    const provider = new GoogleAuthProvider();
+  const handleProviderSignIn = async (provider: any) => {
     try {
       const result = await signInWithPopup(auth, provider);
-      console.log('User signed in:', result.user);
-    } catch (error) {
-      console.error('Google sign-in error:', (error as Error).message);
-    }
-  };
+      const user = result.user;
 
-  const handleFacebookSignIn = async (): Promise<void> => {
-    const provider = new FacebookAuthProvider();
-    try {
-      const result = await signInWithPopup(auth, provider);
-      console.log('User signed in:', result.user);
+       // Get JWT Token
+       const token = await getIdToken(user);
+       console.log("JWT Token:", token);
+  
+      // Check if user already exists in Firestore
+      const userDocRef = doc(db, "users", user.uid);
+      const userSnapshot = await getDoc(userDocRef);
+  
+      if (!userSnapshot.exists()) {
+        // Save user data in Firestore
+        await setDoc(userDocRef, {
+          name: user.displayName || "Anonymous",
+          email: user.email,
+          profileImage: user.photoURL, // Save profile image from OAuth
+          provider: provider instanceof GoogleAuthProvider ? "google" : "facebook",
+          token: token,
+        });
+      }
+  
+      console.log("User signed in and data saved!");
     } catch (error) {
-      console.error('Facebook sign-in error:', (error as Error).message);
+      console.error("Error signing in with provider:", error);
     }
   };
+  
+  // Example Usage
+  const handleGoogleSignIn = () => handleProviderSignIn(new GoogleAuthProvider());
+  const handleFacebookSignIn = () => handleProviderSignIn(new FacebookAuthProvider());
 
   
 
