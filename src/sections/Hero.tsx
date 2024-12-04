@@ -22,7 +22,7 @@ export const Hero = () => {
           </p>
           {/* Buttons */}
           <div className="flex justify-center gap-4 items-center mt-10">
-            <button onClick={() => route.push('/auth?mode=signup')}  className="btn btn-primary px-6 py-3 text-lg font-thin">
+            <button onClick={() => route.push('/auth?mode=signup')}  className="btn btn-primary px-6 py-3 text-lg font-medium">
               Get for free
             </button>
             <button className="btn btn-text flex items-center gap-2">

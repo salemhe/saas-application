@@ -1,5 +1,6 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+import { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
   webpack(config) {
     // Find the existing rule for SVGs
     const fileLoaderRule = config.module.rules.find((rule) =>
@@ -34,4 +35,5 @@ const nextConfig = {
 };
 
 export default nextConfig;
+
 
