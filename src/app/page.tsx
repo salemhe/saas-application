@@ -1,3 +1,4 @@
+import Sidebar from "@/components/Sidebar"
 import { CallToAction } from "@/sections/CallToAction";
 import { Footer } from "@/sections/Footer";
 import { Header } from "@/sections/Header";
@@ -20,9 +21,8 @@ export default function Home() {
       <Testimonials />
       <CallToAction />
       <Footer />
-    </> 
-    
-    
+      {/* <Sidebar /> */}
 
+    </> 
   );
 }
