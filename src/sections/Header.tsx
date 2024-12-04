@@ -4,7 +4,9 @@ import Logo from "@/assets/logosaas.png";
 import Image from "next/image";
 import MenuIcon from "@/assets/menu.svg";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../../firebase";
+import { useState, useEffect } from "react";
 
 export const Header = () => {
   const route = useRouter();
@@ -13,6 +15,26 @@ export const Header = () => {
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
+  const [authenticated, setAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setAuthenticated(true); // User is logged in
+      } else {
+        setAuthenticated(false); // User is not logged in
+      }
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []);
+
+  
+
+  // if (!authenticated) {
+  //   return null; // Avoid rendering the component until redirection completes
+  // }
 
   return (
     <header className="sticky top-0 backdrop-blur-sm z-20">
@@ -50,18 +72,26 @@ export const Header = () => {
               <a href="#">About</a>
               <a href="#">Features</a>
               <a href="#">Help</a>
-              <button
-                onClick={() => route.push("/auth?mode=login")}
-                className="btn btn-text"
-              >
-                Login
-              </button>
-              <button
-                onClick={() => route.push("/auth?mode=signup")}
-                className="bg-black text-white px-4 py-2 rounded-lg font-medium inline-flex items-center justify-center tracking-tight"
-              >
-                Get for free
-              </button>
+              {!authenticated ?
+                ( <div className="flex items-center gap-4">  
+                  <button
+                    onClick={() => route.push("/auth?mode=login")}
+                    className="btn btn-text"
+                  >
+                    Login
+                  </button>
+                  <button
+                    onClick={() => route.push("/auth?mode=signup")}
+                    className="bg-black text-white px-4 py-2 rounded-lg font-medium inline-flex items-center justify-center tracking-tight"
+                  >
+                    Get for free
+                  </button> 
+                  </div>
+                ) : (
+                  <a href="/dashboard">Dashboard</a>
+                )
+
+              }
             </nav>
           </div>
         </div>

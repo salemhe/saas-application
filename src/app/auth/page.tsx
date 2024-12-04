@@ -83,6 +83,7 @@ export default function SignUp() {
         });
 
         setStatusMessage({ type: 'success', text: 'Signed in successfully!' });
+        router.push('/dashboard');
       } else {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
   
@@ -127,7 +128,7 @@ export default function SignUp() {
       // Check if user already exists in Firestore
       const userDocRef = doc(db, "users", user.uid);
       const userSnapshot = await getDoc(userDocRef);
-  
+      router.push('/dashboard');
       if (!userSnapshot.exists()) {
         // Save user data in Firestore
         await setDoc(userDocRef, {
@@ -140,6 +141,7 @@ export default function SignUp() {
       }
   
       console.log("User signed in and data saved!");
+      
     } catch (error) {
       console.error("Error signing in with provider:", error);
     }
