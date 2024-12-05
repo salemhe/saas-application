@@ -86,7 +86,7 @@ const Sidebar = () => {
   };
   return (
     <SidebarContext.Provider value={{ expanded }}>
-      <aside className="h-screen flex flex-col bg-white shadow-sm border-r">
+      <aside className={`h-screen transition-all duration-300 z-10  fixed md:static flex flex-col bg-white shadow-sm border-r`}>
         <div className="p-4 flex justify-between items-center">
           <Image src={Logo} alt="SaaS Logo" height={40} width={40} />
           <button
@@ -110,7 +110,7 @@ const Sidebar = () => {
         {loading ? (
           <p>Loading user data...</p>
         ) : userData ? (
-          <div className="border-t p-3 flex items-center">
+          <div onClick={() => router.push("/profile")} className="cursor-pointer border-t p-3 flex items-center">
             {userData.profileImage ? (
               <Image
                 src={userData.profileImage}
@@ -200,11 +200,4 @@ const SidebarItem = ({ icon, text, href, alert = false }: SidebarItemProps) => {
   );
 };
 
-export default function Dashboard() {
-  return (
-    <div className="flex">
-      <Sidebar />
-      <main className="flex-1 p-6">Content goes here</main>
-    </div>
-  );
-}
+export default Sidebar
