@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, FacebookAuthProvider, sendPasswordResetEmail, updateProfile, getIdToken } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, FacebookAuthProvider, sendPasswordResetEmail, updateProfile, getIdToken, sendEmailVerification } from 'firebase/auth';
 import { MdFacebook } from 'react-icons/md';
 import { LiaEyeSlashSolid, LiaEyeSolid  } from "react-icons/lia";
 import { auth, db } from '../../../firebase';
@@ -14,8 +14,6 @@ export default function SignUp() {
   const [password, setPassword] = useState<string>('');
   const [name, setName] = useState<string>('');
 
-  // const [error, setError] = useState<string | null>(null);
-  // const [isLogin, setIsLogin] = useState<boolean>(true); // Toggle between Login and SignUp
   const [rememberMe, setRememberMe] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false); // State for password visibility
   const [isForgotPassword, setIsForgotPassword] = useState<boolean>(false);
@@ -23,6 +21,7 @@ export default function SignUp() {
   const router = useRouter();
  
   const [isLogin, setIsLogin] = useState<boolean>(false);
+  const [isEmailVerificationRequired, setIsEmailVerificationRequired] = useState<boolean>(false);
 
   useEffect(() => {
     // Extract 'mode' from the query and set the initial state
@@ -33,17 +32,6 @@ export default function SignUp() {
       setIsLogin(false);
     }
   }, []);
-  
-
-// useEffect(() => {
-//   const unsubscribe = onAuthStateChanged(auth, (user) => {
-//     if (user) {
-//       console.log("User's Name:", user.displayName);
-//     }
-//   });
-
-//   return () => unsubscribe();
-// }, []);
 
    // Load saved email from localStorage if "Remember Me" was previously checked
    useEffect(() => {
@@ -71,15 +59,25 @@ export default function SignUp() {
     try {
       if (isLogin) {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const token = await getIdToken(userCredential.user); // Get JWT Token
-        console.log("JWT Token:", token);
+        
+        // Check if email is verified before allowing login
+        if (!userCredential.user.emailVerified) {
+          setIsEmailVerificationRequired(true);
+          setStatusMessage({ 
+            type: 'error', 
+            text: 'Please verify your email before logging in. Check your inbox.' 
+          });
+          return;
+        }
 
-        // Store credentials in Firestore for email/password sign-in
+        const token = await getIdToken(userCredential.user);
+
         await setDoc(doc(db, "users", userCredential.user.uid), {
           name: userCredential.user.displayName || "Anonymous",
           email: userCredential.user.email,
           provider: "email/password",
-          token: token, // Save the JWT token
+          token: token,
+          emailVerified: true
         });
 
         setStatusMessage({ type: 'success', text: 'Signed in successfully!' });
@@ -92,19 +90,26 @@ export default function SignUp() {
           await updateProfile(userCredential.user, { displayName: name });
         }
 
-        // Get JWT Token
-        const token = await getIdToken(userCredential.user);
-        console.log("JWT Token:", token);
+        // Send email verification
+        await sendEmailVerification(userCredential.user);
 
-        // Store credentials in Firestore for email/password sign-up
+        const token = await getIdToken(userCredential.user);
+
         await setDoc(doc(db, "users", userCredential.user.uid), {
           name: name,
           email: email,
           provider: "email/password",
-          token: token, // Save the JWT token
+          token: token,
+          emailVerified: false // Initially set to false
         });
 
-        setStatusMessage({ type: 'success', text: 'Account created successfully!' });
+        setStatusMessage({ 
+          type: 'success', 
+          text: 'Account created! Please check your email to verify your account.' 
+        });
+        
+        // Set state to show verification message
+        setIsEmailVerificationRequired(true);
       }
   
       setName("");
@@ -121,30 +126,50 @@ export default function SignUp() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-       // Get JWT Token
-       const token = await getIdToken(user);
-       console.log("JWT Token:", token);
+      // Optional: Send verification email for new OAuth users if not already verified
+      if (!user.emailVerified) {
+        await sendEmailVerification(user);
+      }
+
+      const token = await getIdToken(user);
   
-      // Check if user already exists in Firestore
       const userDocRef = doc(db, "users", user.uid);
       const userSnapshot = await getDoc(userDocRef);
-      router.push('/dashboard');
+      
       if (!userSnapshot.exists()) {
-        // Save user data in Firestore
         await setDoc(userDocRef, {
           name: user.displayName || "Anonymous",
           email: user.email,
-          profileImage: user.photoURL, // Save profile image from OAuth
+          profileImage: user.photoURL,
           provider: provider instanceof GoogleAuthProvider ? "google" : "facebook",
           token: token,
+          emailVerified: user.emailVerified
         });
       }
   
-      console.log("User signed in and data saved!");
+      router.push('/dashboard');
       
     } catch (error) {
       console.error("Error signing in with provider:", error);
     }
+  };
+
+  // Render additional verification message if needed
+  const renderVerificationMessage = () => {
+    if (isEmailVerificationRequired) {
+      return (
+        <div className="mt-4 text-center bg-blue-100 text-blue-700 p-3 rounded-md">
+          <p>Email verification required. Please check your inbox.</p>
+          <button 
+            onClick={() => setIsEmailVerificationRequired(false)}
+            className="mt-2 text-sm text-indigo-600 hover:text-indigo-500"
+          >
+            Resend verification email
+          </button>
+        </div>
+      );
+    }
+    return null;
   };
   
   // Example Usage
@@ -191,7 +216,7 @@ export default function SignUp() {
           </button>
         </p>
       </div>
-
+      {renderVerificationMessage()}
       <div className="mt-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && (
