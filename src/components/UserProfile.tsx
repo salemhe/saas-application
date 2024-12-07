@@ -22,7 +22,7 @@ export default function ProfileComponent() {
   });
   const [profileImage, setProfileImage] = useState<string>("");
   const [isEditing, setIsEditing] = useState(false);
-
+  const [loading, setLoading] = useState(true); 
   useEffect(() => {
     const fetchUserData = async () => {
       const user = auth.currentUser;
@@ -170,16 +170,23 @@ export default function ProfileComponent() {
    }
  };
  
- 
 
-  if (!userData) {
-    return <div className="p-6">Loading...</div>;
-  }
+   //loader timeout for 3 seconds before content renders
+   useEffect(() => {
+    if (!userData) {
+      setTimeout(() => {
+        setLoading(false);  
+      }, 2000);
+    }
+  }, [userData]);
 
   return (
    <div className="flex">
   <Sidebar />
   <div className="flex-1 p-6 overflow-x-visible ml-24 md:ml-0 mx-auto max-w-4xl">
+  {loading ? (
+          <div className="w-16 h-16 border-4 border-dashed border-blue-500 animate-spin border-t-transparent rounded-full"></div>
+        ) : (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* Profile Overview Card */}
       <div className="md:col-span-1 bg-white rounded-2xl shadow-lg p-6 text-center transition-all duration-300 hover:shadow-xl">
@@ -296,6 +303,7 @@ export default function ProfileComponent() {
         )}
       </div>
     </div>
+        )}
   </div>
 </div>
 

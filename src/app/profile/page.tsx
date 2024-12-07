@@ -26,6 +26,6 @@ export default function ProfilePage() {
    if (!authenticated) {
       return null; // Avoid rendering the component until redirection completes
     }
-
+    
   return <ProfileComponent />;
 }
