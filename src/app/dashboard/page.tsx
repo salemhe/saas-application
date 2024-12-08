@@ -6,8 +6,9 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../../firebase";
 import Sidebar from "@/components/Sidebar";
 
-export default function Dashboard() {
+function Page() {
   const [authenticated, setAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true); // Track loading state
   const router = useRouter();
 
   useEffect(() => {
@@ -16,7 +17,7 @@ export default function Dashboard() {
         setAuthenticated(true); // User is logged in
       } else {
         setAuthenticated(false); // User is not logged in
-        router.push("/auth?mode=login"); // Redirect to login page
+        router.push("/auth?mode=login"); 
       }
     });
 
@@ -24,16 +25,31 @@ export default function Dashboard() {
     return () => unsubscribe();
   }, [router]);
 
-  
-
-  if (!authenticated) {
-    return null; // Avoid rendering the component until redirection completes
-  }
+  //loader timeout for 3 seconds before content renders
+  useEffect(() => {
+    if (authenticated) {
+      setTimeout(() => {
+        setLoading(false);  
+      }, 2000);
+    }
+  }, [authenticated]);
 
   return (
-    <div className="flex">
+    <div className="flex h-screen">
       <Sidebar />
-      <main className="flex-1 p-6">Content goes here</main>
+      <main className="flex-1 p-6 flex justify-center items-center">
+        {loading ? (
+          <div className="w-16 h-16 border-4 border-dashed border-blue-500 animate-spin border-t-transparent rounded-full"></div>
+        ) : (
+  
+          <div className="max-w-4xl w-full mx-auto text-center">
+            <h1 className="text-2xl font-semibold">Dashboard Content</h1>
+            <p className="mt-4 text-gray-600">This is the content for Dashboard.</p>
+          </div>
+        )}
+      </main>
     </div>
   );
 }
+
+export default Page;

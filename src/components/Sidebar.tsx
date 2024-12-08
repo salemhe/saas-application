@@ -6,15 +6,15 @@ import {
   Home,
   LayoutDashboard,
   StickyNote,
-  Calendar,
-  Layers,
-  Flag,
-  Settings,
+  Search,
+  Sparkles,
+  SmartphoneNfc,
   ChevronLeft,
   ChevronRight,
   MoreVertical,
   PlusCircle,
   LogOut,
+  Settings,
 } from "lucide-react";
 
 import Logo from "@/assets/logosaas.png";
@@ -28,19 +28,20 @@ const SidebarContext = createContext<{ expanded: boolean } | undefined>(undefine
 
 const menuItems = [
   { icon: <Home size={20} />, text: "Home", href: "/", alert: true },
-  { icon: <LayoutDashboard size={20} />, text: "Dashboard", href: "/dashboard", active: true },
+  { icon: <LayoutDashboard size={20} />, text: "Dashboard", href: "/dashboard" },
   { icon: <StickyNote size={20} />, text: "Projects", href: "/projects", alert: true },
-  { icon: <Calendar size={20} />, text: "Calendar", href: "/calendar" },
-  { icon: <Layers size={20} />, text: "Tasks", href: "/tasks" },
-  { icon: <Flag size={20} />, text: "Reporting", href: "/reporting" },
+  { icon: <Search size={20} />, text: "Billboard", href: "/billboard" },
+  { icon: <Sparkles size={20} />, text: "AI-Generator", href: "/ai-generator" },
+  { icon: <SmartphoneNfc size={20} />, text: "Campaign", href: "/campaign" },
   { icon: <Settings size={20} />, text: "Settings", href: "/settings" },
   { icon: <PlusCircle size={20} />, text: "Upgrade", href: "/upgrade" },
 ];
 
 const Sidebar = () => {
   const [expanded, setExpanded] = useState(true);
-  const [userData, setUserData] = useState<any>(null); // State to store user data
+  const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
   const fetchUserData = async (uid: string) => {
     try {
       setLoading(true);
@@ -53,64 +54,63 @@ const Sidebar = () => {
     } catch (error) {
       console.error("Error fetching user data:", error);
     } finally {
-      setLoading(false); // Stop loading regardless of success/failure
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        console.log("User is signed in:", user);
-        fetchUserData(user.uid); // Fetch user data with correct UID
+        fetchUserData(user.uid);
       } else {
-        console.log("No user is signed in.");
-        setUserData(null); // Clear state if no user
+        setUserData(null);
       }
     });
-  
-    return () => unsubscribe(); // Cleanup listener
+
+    return () => unsubscribe();
   }, []);
-  
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const router = useRouter()
+  const router = useRouter();
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      console.log("User signed out successfully.");
-      router.push("/")
-      // Redirect to login page or show a logout confirmation
+      router.push("/");
     } catch (error) {
       console.error("Error signing out:", error);
     }
   };
+
   return (
     <SidebarContext.Provider value={{ expanded }}>
-      <aside className={`h-screen transition-all duration-300 z-10  fixed md:static flex flex-col bg-white shadow-sm border-r`}>
-        <div className="p-4 flex justify-between items-center">
-          <Image src={Logo} alt="SaaS Logo" height={40} width={40} />
+      <aside
+        className={`h-screen ${expanded ? "w-72" : "w-20"} transition-all duration-300 z-10 fixed md:static flex flex-col bg-white text-black shadow-xl border-r`}
+      >
+        {/* Sidebar Header */}
+        <div className="p-4 flex items-center justify-between">
+          <div className="flex items-center">
+            {/* Logo with hover effect */}
+            {expanded && <Image src={Logo} alt="Logo" height={40} width={40} />}
+          </div>
+          {/* Toggle Button */}
           <button
             onClick={() => setExpanded((prev) => !prev)}
-            className="p-2 rounded-lg bg-gray-50 hover:bg-gray-100"
+            className="p-2 rounded-lg bg-gray-200 hover:bg-gray-300"
             aria-label="Toggle Sidebar"
           >
-            {expanded ? <ChevronLeft /> : <ChevronRight />}
+            {expanded ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
           </button>
         </div>
 
-        <nav className="flex-1 px-3 space-y-1">
-          {menuItems.map((item) => (
-            <SidebarItem key={item.text} {...item} />
-          ))}
-        </nav>
-        {/* {auth.currentUser && (
-          <UserProfile userData={userData} expanded={expanded} />
-        )} */}
-
+        {/* Profile Section */}
         {loading ? (
           <p>Loading user data...</p>
         ) : userData ? (
-          <div onClick={() => router.push("/profile")} className="cursor-pointer border-t p-3 flex items-center">
+          <div
+            onClick={() => router.push("/profile")}
+            className="cursor-pointer border-b p-3 flex items-center justify-between hover:bg-gray-100 transition-colors mb-4"
+          >
             {userData.profileImage ? (
               <Image
                 src={userData.profileImage}
@@ -120,7 +120,7 @@ const Sidebar = () => {
                 className="rounded-full"
               />
             ) : (
-              <div className="bg-gray-300 w-10 h-10 rounded-full flex items-center justify-center">
+              <div className="bg-gray-500 w-10 h-10 rounded-full flex items-center justify-center">
                 <span className="text-white font-bold">
                   {userData.name?.charAt(0).toUpperCase() || "U"}
                 </span>
@@ -135,17 +135,16 @@ const Sidebar = () => {
             <div className="ml-auto relative">
               <button
                 onClick={() => setDropdownOpen((prev) => !prev)}
-                className="p-2 rounded-full hover:bg-gray-100"
+                className="p-2 rounded-full hover:bg-gray-200"
                 aria-label="Open dropdown"
               >
                 <MoreVertical size={20} />
               </button>
-
               {dropdownOpen && (
-                <div className="absolute left-0 -mt-10 ml-6 bg-white border rounded-md shadow-md z-10">
+                <div className="absolute left-0 -mt-10 ml-6 bg-white border rounded-md shadow-md z-10 w-max">
                   <button
                     onClick={handleLogout}
-                    className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-50 w-full"
+                    className="flex items-center px-4 py-2 text-sm text-red-500 hover:bg-gray-200 w-full"
                   >
                     <LogOut size={16} className="mr-2" />
                     Logout
@@ -157,6 +156,13 @@ const Sidebar = () => {
         ) : (
           <p>No user data available.</p>
         )}
+
+        {/* Sidebar Menu */}
+        <nav className="flex-1 px-4 space-y-2">
+          {menuItems.map((item) => (
+            <SidebarItem key={item.text} {...item} />
+          ))}
+        </nav>
       </aside>
     </SidebarContext.Provider>
   );
@@ -166,12 +172,11 @@ interface SidebarItemProps {
   icon: React.ReactNode;
   text: string;
   href: string;
-  active?: boolean;
   alert?: boolean;
 }
 
 const SidebarItem = ({ icon, text, href, alert = false }: SidebarItemProps) => {
-  const pathname = usePathname(); 
+  const pathname = usePathname();
   const context = useContext(SidebarContext);
 
   if (!context) {
@@ -188,16 +193,41 @@ const SidebarItem = ({ icon, text, href, alert = false }: SidebarItemProps) => {
       <li
         className={`relative flex items-center py-2 px-3 rounded-md cursor-pointer group transition-colors ${
           isActive
-            ? "bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800"
-            : "hover:bg-indigo-50 text-gray-600"
-        }`}
+            ? "bg-[#d7e0ff] text-white"
+            : "hover:bg-gray-100 text-gray-800"
+        } mb-2`}
       >
-        {icon}
-        {expanded && <span className="ml-3">{text}</span>}
-        {alert && <span className="absolute right-2 w-2 h-2 rounded-full bg-indigo-400"></span>}
+        
+        <span
+          className={`transition-colors ${
+            isActive ? "text-[#5a5acb]" : "text-gray-800"
+          }`}
+        >
+          {icon}
+        </span>
+
+        {expanded && (
+          <span
+            className={`ml-3 transition-colors ${
+              isActive ? "text-[#5a5acb]" : "text-gray-800"
+            }`}
+          >
+            {text}
+          </span>
+        )}
+
+        {!expanded && (
+          <div
+            className="absolute left-16 top-1/2 -translate-y-1/2 bg-gray-800 text-white rounded-md px-2 py-1 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+          >
+            {text}
+          </div>
+        )}
+
+        {alert && <span className="absolute right-2 w-2 h-2 rounded-full bg-indigo-500"></span>}
       </li>
     </Link>
   );
 };
 
-export default Sidebar
+export default Sidebar;

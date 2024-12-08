@@ -28,7 +28,9 @@ const config: Config = {
       },
     },
   },
-  plugins: [formsPlugin], // Fixed the placement of plugins array here
+  plugins: [formsPlugin], 
 };
 
 export default config;
+
+

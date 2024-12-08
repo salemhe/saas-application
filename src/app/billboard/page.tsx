@@ -42,8 +42,8 @@ function Page() {
           <div className="w-16 h-16 border-4 border-dashed border-blue-500 animate-spin border-t-transparent rounded-full"></div>
         ) : (
           <div className="max-w-4xl w-full mx-auto text-center">
-            <h1 className="text-2xl font-semibold">Setting Content</h1>
-            <p className="mt-4 text-gray-600">This is the content for setting.</p>
+            <h1 className="text-2xl font-semibold">Billboard Content</h1>
+            <p className="mt-4 text-gray-600">This is the content for billboard.</p>
           </div>
         )}
       </main>

@@ -31,8 +31,15 @@ function Page() {
     return null; // Avoid rendering the component until redirection completes
   }
   return (
-    <div>
-      <Sidebar/>
+    <div className="flex h-screen">
+      <Sidebar />
+      <main className="flex-1 p-6 flex justify-center items-center">
+        <div className="max-w-4xl w-full mx-auto text-center">
+          {/* Billboard Content goes here */}
+          <h1 className="text-2xl font-semibold">AI-Generator Content</h1>
+          <p className="mt-4 text-gray-600">This is the content for ai-generator.</p>
+        </div>
+      </main>
     </div>
   )
 }
