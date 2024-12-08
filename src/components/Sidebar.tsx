@@ -105,7 +105,10 @@ const Sidebar = () => {
 
         {/* Profile Section */}
         {loading ? (
-          <p>Loading user data...</p>
+          <div className="cursor-pointer border-b p-3 flex items-center justify-between hover:bg-gray-100 transition-colors mb-4">
+            <p>Loading user data...</p>
+          </div>
+          
         ) : userData ? (
           <div
             onClick={() => router.push("/profile")}

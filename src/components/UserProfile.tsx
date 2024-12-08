@@ -182,11 +182,13 @@ export default function ProfileComponent() {
 
   return (
    <div className="flex">
-  <Sidebar />
-  <div className="flex-1 p-6 overflow-x-visible ml-24 md:ml-0 mx-auto max-w-4xl">
-  {loading ? (
-          <div className="w-16 h-16 border-4 border-dashed border-blue-500 animate-spin border-t-transparent rounded-full"></div>
-        ) : (
+    <Sidebar />
+    <div className="flex-1 p-6 fle ml-24 md:ml-0 mx-auto max-w-4xl">
+    {loading ? (
+      <div className="flex-1 p-6 flex justify-center items-center">
+        <div className="w-16 h-16 border-4 border-dashed border-blue-500 animate-spin border-t-transparent rounded-full"></div>
+      </div>
+    ) : (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* Profile Overview Card */}
       <div className="md:col-span-1 bg-white rounded-2xl shadow-lg p-6 text-center transition-all duration-300 hover:shadow-xl">
