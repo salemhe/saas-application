@@ -122,18 +122,26 @@ export const Header = () => {
           <a href="#" className="text-white text-lg">Help</a>
 
           {/* Buttons for login and signup */}
-          <button
-            onClick={() => route.push("/auth?mode=login")}
-            className="bg-white text-black px-6 py-2 rounded-lg font-medium tracking-tight"
-          >
-            Login
-          </button>
-          <button
-            onClick={() => route.push("/auth?mode=signup")}
-            className="bg-white text-black px-6 py-2 rounded-lg font-medium tracking-tight"
-          >
-            Get for free
-          </button>
+          {!authenticated ?
+                ( <>  
+                  <button
+                    onClick={() => route.push("/auth?mode=login")}
+                    className="bg-white text-black px-6 py-2 rounded-lg font-medium tracking-tight"
+                  >
+                    Login
+                  </button>
+                  <button
+                    onClick={() => route.push("/auth?mode=signup")}
+                    className="bg-white text-black px-6 py-2 rounded-lg font-medium tracking-tight"
+                  >
+                    Get for free
+                  </button> 
+                  </>
+                ) : (
+                  <a href="/dashboard">Dashboard</a>
+                )
+
+              }
         </nav>
       </div>
     </header>
