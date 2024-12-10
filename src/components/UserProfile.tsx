@@ -27,17 +27,19 @@ export default function ProfileComponent() {
     const fetchUserData = async () => {
       const user = auth.currentUser;
       if (!user) return;
-
+  
       try {
         // Fetch user document from Firestore
         const userDocRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userDocRef);
-
+  
         if (userDoc.exists()) {
-          setUserData(userDoc.data());
-          setProfileImage(userDoc.data().profileImage || ""); 
+          const userData = userDoc.data();
+          setUserData(userData);
+          // Ensure that we always use the profileImage from Firestore if it exists
+          setProfileImage(userData.profileImage || "");
         }
-
+  
         // Check linked providers
         const providerData = user.providerData;
         setLinkedAccounts({
@@ -52,9 +54,10 @@ export default function ProfileComponent() {
         console.error("Error fetching user data:", error);
       }
     };
-
+  
     fetchUserData();
   }, []);
+  
 
   const linkSocialAccount = async (providerName: "facebook" | "google") => {
     const user = auth.currentUser;
@@ -144,31 +147,32 @@ export default function ProfileComponent() {
 
   // Handle the image upload
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-   const file = event.target.files?.[0];
-   if (file) {
-     const reader = new FileReader();
-     reader.onloadend = async () => {
-       const newProfileImage = reader.result as string;
-       setProfileImage(newProfileImage);  // Immediately update state with the new image
-       
-       // Save the image to Firestore immediately
-       const user = auth.currentUser;
-       if (user) {
-         const userDocRef = doc(db, "users", user.uid);
-         await updateDoc(userDocRef, {
-           profileImage: newProfileImage,  // Save base64 image string
-         });
- 
-         // Optionally: Fetch the updated user data from Firestore after update to ensure synchronization
-         const userDoc = await getDoc(userDocRef);
-         if (userDoc.exists()) {
-           setUserData(userDoc.data());
-         }
-       }
-     };
-     reader.readAsDataURL(file);
-   }
- };
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const newProfileImage = reader.result as string;
+        setProfileImage(newProfileImage);  // Immediately update state with the new image
+  
+        // Save the image to Firestore immediately
+        const user = auth.currentUser;
+        if (user) {
+          const userDocRef = doc(db, "users", user.uid);
+          await updateDoc(userDocRef, {
+            profileImage: newProfileImage,  // Save base64 image string
+          });
+  
+          // Optionally: Fetch the updated user data from Firestore after update to ensure synchronization
+          const userDoc = await getDoc(userDocRef);
+          if (userDoc.exists()) {
+            setUserData(userDoc.data());
+          }
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  
  
 
    //loader timeout for 3 seconds before content renders
@@ -191,9 +195,9 @@ export default function ProfileComponent() {
     ) : (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* Profile Overview Card */}
-      <div className="md:col-span-1 bg-white rounded-2xl shadow-lg p-6 text-center transition-all duration-300 hover:shadow-xl">
+      <div className="md:col-span-1 bg-white rounded-2xl shadow-lg p-6 text-center  hover:shadow-xl">
         <div className="relative mx-auto mb-4 w-32 h-32">
-          {profileImage || userData.profileImage ? (
+          {profileImage || (userData && userData.profileImage)  ? (
             <Image
               width={128}
               height={128}
@@ -206,7 +210,7 @@ export default function ProfileComponent() {
               <User size={64} className="text-blue-500" />
             </div>
           )}
-          <label className="absolute bottom-0 right-0 bg-blue-500 text-white rounded-full p-2 cursor-pointer hover:bg-blue-600 transition">
+          <label className="absolute bottom-0 right-0 bg-blue-500 text-white rounded-full p-2 cursor-pointer hover:bg-blue-600">
             <Camera size={16} />
             <input
               type="file"
@@ -217,9 +221,9 @@ export default function ProfileComponent() {
           </label>
         </div>
         <h1 className="text-2xl font-bold text-gray-800 mb-2">
-          {userData.name || "User Profile"}
+          {userData && userData.name}
         </h1>
-        <p className="text-gray-500 mb-4">{userData.email}</p>
+        <p className="text-gray-500 mb-4">{userData && userData.email}</p>
         <button
           onClick={() => setIsEditing(!isEditing)}
           className="w-full bg-blue-50 text-blue-600 py-2 rounded-lg hover:bg-blue-100 transition"

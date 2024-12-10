@@ -1,14 +1,49 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, FacebookAuthProvider, sendPasswordResetEmail, updateProfile, getIdToken, sendEmailVerification } from 'firebase/auth';
 import { MdFacebook } from 'react-icons/md';
 import { LiaEyeSlashSolid, LiaEyeSolid  } from "react-icons/lia";
 import { auth, db } from '../../../firebase';
 import Image from 'next/image';
-// import { onAuthStateChanged } from "firebase/auth";
 import Logo from '@/assets/logosaas.png'
 import { useRouter } from 'next/navigation';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { FirebaseError } from 'firebase/app';
+
+// Password complexity validation
+const validatePassword = (password: string): { isValid: boolean; errors: string[] } => {
+  const errors: string[] = [];
+
+  if (password.length < 8) {
+    errors.push("Password must be at least 8 characters long");
+  }
+  if (!/[A-Z]/.test(password)) {
+    errors.push("Password must contain at least one uppercase letter");
+  }
+  if (!/[a-z]/.test(password)) {
+    errors.push("Password must contain at least one lowercase letter");
+  }
+  if (!/[0-9]/.test(password)) {
+    errors.push("Password must contain at least one number");
+  }
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+    errors.push("Password must contain at least one special character");
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
+
+
+// Login attempt tracking
+interface LoginAttempt {
+  timestamp: number;
+  successful: boolean;
+}
+
 export default function SignUp() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -18,10 +53,44 @@ export default function SignUp() {
   const [showPassword, setShowPassword] = useState<boolean>(false); // State for password visibility
   const [isForgotPassword, setIsForgotPassword] = useState<boolean>(false);
   const [statusMessage, setStatusMessage] = useState<{ type: string; text: string } | null>(null);
-  const router = useRouter();
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
+
+  // Login attempt management
+  const [loginAttempts, setLoginAttempts] = useState<LoginAttempt[]>([]);
+  const [isLocked, setIsLocked] = useState<boolean>(false);
  
+  const router = useRouter();
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const [isEmailVerificationRequired, setIsEmailVerificationRequired] = useState<boolean>(false);
+
+   // Check login attempts and implement rate limiting
+   const checkLoginAttempts = useCallback(() => {
+    const currentTime = Date.now();
+    const recentAttempts = loginAttempts.filter(
+      attempt => currentTime - attempt.timestamp < 15 * 60 * 1000 // 15 minutes
+    );
+
+    // Lock account after 5 failed attempts in 15 minutes
+    const failedAttempts = recentAttempts.filter(attempt => !attempt.successful);
+    if (failedAttempts.length >= 5) {
+      setIsLocked(true);
+      setStatusMessage({ 
+        type: 'error', 
+        text: 'Too many failed attempts. Please try again later.' 
+      });
+      
+      // Automatically unlock after 15 minutes
+      setTimeout(() => {
+        setIsLocked(false);
+        setLoginAttempts([]);
+      }, 15 * 60 * 1000);
+    }
+  }, [loginAttempts]);
+
+  useEffect(() => {
+    checkLoginAttempts();
+  }, [checkLoginAttempts]);
+
 
   useEffect(() => {
     // Extract 'mode' from the query and set the initial state
@@ -35,30 +104,72 @@ export default function SignUp() {
 
    // Load saved email from localStorage if "Remember Me" was previously checked
    useEffect(() => {
-      const savedEmail = localStorage.getItem('rememberedEmail');
+      const savedEmail = sessionStorage.getItem('rememberedEmail');
       if (savedEmail) {
         setEmail(savedEmail);
         setRememberMe(true);
       }
     }, []);
+
+    const refreshSession = async () => {
+      try {
+        const response = await fetch('/api/refresh', { method: 'POST' });
+        if (!response.ok) throw new Error('Failed to refresh session');
+      } catch (error) {
+        console.error('Session refresh error:', error);
+        // Optionally, redirect to login if refresh fails
+      }
+    };
+    
+    useEffect(() => {
+      const interval = setInterval(refreshSession, 60 * 60 * 1000); // Every hour
+      return () => clearInterval(interval);
+    }, []);
+    
   
     const handleRememberMe = () => {
       if (rememberMe) {
-        localStorage.setItem('rememberedEmail', email);
+        sessionStorage.setItem('rememberedEmail', email);
       } else {
-        localStorage.removeItem('rememberedEmail');
+        sessionStorage.removeItem('rememberedEmail');
       }
     };
+
 
   // Handle form submit for Login or SignUp
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatusMessage(null);
     handleRememberMe();
+
+     // Check if account is locked
+     if (isLocked) {
+      setStatusMessage({ 
+        type: 'error', 
+        text: 'Account temporarily locked. Please try again later.' 
+      });
+      return;
+    }
+
+    // Password complexity validation for signup
+    if (!isLogin) {
+      const passwordValidation = validatePassword(password);
+      if (!passwordValidation.isValid) {
+        setPasswordErrors(passwordValidation.errors);
+        return;
+      }
+    }
+
   
     try {
       if (isLogin) {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
+
+        // Record successful login attempt
+        setLoginAttempts(prev => [
+          ...prev, 
+          { timestamp: Date.now(), successful: true }
+        ]);
         
         // Check if email is verified before allowing login
         if (!userCredential.user.emailVerified) {
@@ -70,15 +181,15 @@ export default function SignUp() {
           return;
         }
 
-        const token = await getIdToken(userCredential.user);
+        // const token = await getIdToken(userCredential.user);
 
-        await setDoc(doc(db, "users", userCredential.user.uid), {
-          name: userCredential.user.displayName || "Anonymous",
-          email: userCredential.user.email,
-          provider: "email/password",
-          token: token,
-          emailVerified: true
-        });
+        // await setDoc(doc(db, "users", userCredential.user.uid), {
+        //   name: userCredential.user.displayName || "Anonymous",
+        //   email: userCredential.user.email,
+        //   provider: "email/password",
+        //   token: token,
+        //   emailVerified: true
+        // });
 
         setStatusMessage({ type: 'success', text: 'Signed in successfully!' });
         router.push('/dashboard');
@@ -116,10 +227,58 @@ export default function SignUp() {
       setEmail("");
       setPassword("");
     } catch (error) {
-      console.error('Error with authentication:', (error as Error).message);
-      setStatusMessage({ type: 'error', text: 'Error with authentication. Check your details and try again.' });
+           // Record failed login attempt
+           setLoginAttempts(prev => [
+            ...prev, 
+            { timestamp: Date.now(), successful: false }
+          ]);
+    
+          const firebaseError = error as FirebaseError;
+          let errorMessage = 'Authentication failed';
+          
+          switch (firebaseError.code) {
+            case 'auth/wrong-password':
+              errorMessage = 'Incorrect password. Please try again.';
+              break;
+            case 'auth/user-not-found':
+              errorMessage = 'No account found with this email.';
+              break;
+            case 'auth/too-many-requests':
+              errorMessage = 'Too many failed attempts. Please try again later.';
+              break;
+            default:
+              errorMessage = 'Authentication failed. Please check your credentials.';
+          }
+          
+          setStatusMessage({ type: 'error', text: errorMessage });
     }
+    
   };
+
+  const renderPasswordErrors = () => {
+    if (passwordErrors.length > 0) {
+      return (
+        <div className="mt-2 text-sm text-red-600">
+          {passwordErrors.map((error, index) => (
+            <p key={index}>{error}</p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+  useEffect(() => {
+    if (passwordErrors.length > 0) {
+      const timer = setTimeout(() => {
+        setPasswordErrors([]);
+      }, 11000);
+
+      return () => clearTimeout(timer); // Cleanup timeout on unmount
+    }
+  }, [passwordErrors]);
+
+  
+  
 
   const handleProviderSignIn = async (provider: any) => {
     try {
@@ -129,6 +288,10 @@ export default function SignUp() {
       // Optional: Send verification email for new OAuth users if not already verified
       if (!user.emailVerified) {
         await sendEmailVerification(user);
+
+         // Prevent login if verification is mandatory
+        throw new Error('Email not verified');  
+      
       }
 
       const token = await getIdToken(user);
@@ -154,6 +317,64 @@ export default function SignUp() {
     }
   };
 
+  const [verificationEmailAttempts, setVerificationEmailAttempts] = useState(0);
+const [canResendAt, setCanResendAt] = useState<number | null>(null);
+
+const handleResendVerification = async () => {
+  const currentTime = Date.now();
+
+  // Check if there's a cooldown period
+  if (canResendAt && currentTime < canResendAt) {
+    const remainingSeconds = Math.ceil((canResendAt - currentTime) / 1000);
+    setStatusMessage({
+      type: 'error',
+      text: `Please wait ${remainingSeconds} seconds before requesting another verification email.`
+    });
+    return;
+  }
+
+  try {
+    // Limit to 3 attempts within a 24-hour period
+    if (verificationEmailAttempts >= 3) {
+      setStatusMessage({
+        type: 'error',
+        text: 'Maximum verification email attempts reached. Please try again later.'
+      });
+      return;
+    }
+
+    if (auth.currentUser) {
+      await sendEmailVerification(auth.currentUser);
+    } else {
+      setStatusMessage({ type: 'error', text: 'No user is signed in.' });
+    }
+    
+
+    // Set cooldown (5 minutes between resends)
+    const nextResendTime = currentTime + 5 * 60 * 1000; // 5 minutes
+    setCanResendAt(nextResendTime);
+
+    // Increment attempts
+    setVerificationEmailAttempts(prev => prev + 1);
+
+    setStatusMessage({
+      type: 'success',
+      text: 'Verification email resent! Please check your inbox.'
+    });
+
+    // Optional: Reset attempts after 24 hours
+    setTimeout(() => {
+      setVerificationEmailAttempts(0);
+    }, 24 * 60 * 60 * 1000);
+
+  } catch (error) {
+    console.error('Resend verification error:', error);
+    setStatusMessage({
+      type: 'error',
+      text: 'Failed to resend verification email. Please try again.'
+    });
+  }
+};
   // Render additional verification message if needed
   const renderVerificationMessage = () => {
     if (isEmailVerificationRequired) {
@@ -161,7 +382,7 @@ export default function SignUp() {
         <div className="mt-4 text-center bg-blue-100 text-blue-700 p-3 rounded-md">
           <p>Email verification required. Please check your inbox.</p>
           <button 
-            onClick={() => setIsEmailVerificationRequired(false)}
+            onClick={handleResendVerification}
             className="mt-2 text-sm text-indigo-600 hover:text-indigo-500"
           >
             Resend verification email
@@ -171,6 +392,8 @@ export default function SignUp() {
     }
     return null;
   };
+
+  
   
   // Example Usage
   const handleGoogleSignIn = () => handleProviderSignIn(new GoogleAuthProvider());
@@ -255,34 +478,36 @@ export default function SignUp() {
               />
             </div>
           </div>
-
-          {!isForgotPassword && (
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <div className="mt-1 relative">
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  autoComplete="current-password"
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-3 flex items-center text-sm text-gray-600"
-                >
-                  {showPassword ? <LiaEyeSlashSolid /> : <LiaEyeSolid />}
-                </button>
+          {
+          // !isLogin && (
+            !isForgotPassword && (
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  Password
+                </label>
+                <div className="mt-1 relative">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    autoComplete="current-password"
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-3 flex items-center text-sm text-gray-600"
+                  >
+                    {showPassword ? <LiaEyeSlashSolid /> : <LiaEyeSolid />}
+                  </button>
+                </div>
+                {!isLogin && renderPasswordErrors()}
               </div>
-            </div>
+            // )
           )}
-
           {statusMessage && (
             <div
               className={`text-sm font-medium p-2 rounded ${
