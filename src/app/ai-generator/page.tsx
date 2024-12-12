@@ -10,6 +10,7 @@ import Chatbot from "@/components/Chatbot"
 
 
 
+
 function Page() {
    const [authenticated, setAuthenticated] = useState(false);
   const router = useRouter();

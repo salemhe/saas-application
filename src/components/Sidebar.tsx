@@ -85,7 +85,7 @@ const Sidebar = () => {
   return (
     <SidebarContext.Provider value={{ expanded }}>
       <aside
-        className={`h-screen ${expanded ? "w-72" : "w-20"} transition-all duration-300 z-10 fixed md:static flex flex-col bg-white text-black shadow-xl border-r`}
+        className={`min-h-screen ${expanded ? "w-72" : "w-20"} transition-all duration-300 z-10 fixed top-0 left-0 flex flex-col bg-white text-black shadow-xl border-r`}
       >
         {/* Sidebar Header */}
         <div className="p-4 flex items-center justify-between">
@@ -108,7 +108,6 @@ const Sidebar = () => {
           <div className="cursor-pointer border-b p-3 flex items-center justify-between hover:bg-gray-100 transition-colors mb-4">
             <p>Loading user data...</p>
           </div>
-          
         ) : userData ? (
           <div
             onClick={() => router.push("/profile")}
@@ -234,3 +233,5 @@ const SidebarItem = ({ icon, text, href, alert = false }: SidebarItemProps) => {
 };
 
 export default Sidebar;
+
+
