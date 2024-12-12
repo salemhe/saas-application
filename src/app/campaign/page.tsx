@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../../firebase";
 import Sidebar from "@/components/Sidebar";
+import CampaignForm from "@/components/CampainForm";
 
 function Page() {
   const [authenticated, setAuthenticated] = useState(false);
@@ -37,13 +38,16 @@ function Page() {
   return (
     <div className="flex h-screen">
       <Sidebar />
-      <main className="flex-1 p-6 flex justify-center items-center">
+      <main className="flex-1">
         {loading ? (
-          <div className="w-16 h-16 border-4 border-dashed border-blue-500 animate-spin border-t-transparent rounded-full"></div>
+          <div className="flex-1 p-6 flex justify-center items-center">
+            <div className="w-16 h-16 border-4 border-dashed border-blue-500 animate-spin border-t-transparent rounded-full"></div>
+          </div>
         ) : (
-          <div className="max-w-4xl w-full mx-auto text-center">
-            <h1 className="text-2xl font-semibold">Campaign Content</h1>
-            <p className="mt-4 text-gray-600">This is the content for Campaign.</p>
+          <div className="max-w-4xl w-full mx-auto mt-42 p-12">
+            <CampaignForm/>
+            {/* <h1 className="text-2xl font-semibold">Campaign Content</h1>
+            <p className="mt-4 text-gray-600">This is the content for Campaign.</p> */}
           </div>
         )}
       </main>
