@@ -44,7 +44,7 @@ function Page() {
             <div className="w-16 h-16 border-4 border-dashed border-blue-500 animate-spin border-t-transparent rounded-full"></div>
           </div>
         ) : (
-          <div className="max-w-4xl w-full mx-auto mt-42 p-12">
+          <div className="max-w-4xl w-full mx-auto mt-42 p-12 flex-1">
             <CampaignForm/>
             {/* <h1 className="text-2xl font-semibold">Campaign Content</h1>
             <p className="mt-4 text-gray-600">This is the content for Campaign.</p> */}

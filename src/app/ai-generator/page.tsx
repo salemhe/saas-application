@@ -37,7 +37,7 @@ function Page() {
   return (
     <div className="flex h-screen">
       <Sidebar />
-      <main className="flex-1 p-6 flex justify-center items-center">
+      <main className="flex-1 ml-10 p-6 flex justify-center items-center">
         <div className="max-w-4xl w-full mx-auto text-center">
           {/* Billboard Content goes here */}
           <Chatbot />
