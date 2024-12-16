@@ -70,7 +70,7 @@ const AiGenerator = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [selectedHistoryItem, setSelectedHistoryItem] = useState<HistoryItem | null>(null);
-
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const abortController = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -123,7 +123,59 @@ const AiGenerator = () => {
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
     setSelectedImage(file);
+  
+    if (file) {
+      const previewUrl = URL.createObjectURL(file); // Generate a preview URL
+      setImagePreview(previewUrl); // Save the preview URL for rendering
+    } else {
+      setImagePreview(null); // Clear the preview if no file is selected
+    }
   };
+
+  const handleRemoveImage = () => {
+    setImagePreview(null);
+    setSelectedImage(null);
+  };
+
+  const handleGenerateImage = async (prompt: string) => {
+    try {
+      setIsLoading(true);
+  
+      console.log("Generating image with prompt:", prompt); // Add logging
+  
+      const response = await fetch("/api/generate-image", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prompt }),
+      });
+  
+      console.log("Response status:", response.status); // Log response status
+  
+      if (!response.ok) {
+        const errorText = await response.text(); // Try to get more detailed error
+        console.error("Error response:", errorText);
+        throw new Error(errorText || "Image generation failed");
+      }
+  
+      const data = await response.json();
+      console.log("Received data:", data); // Log received data
+  
+      if (data.imageUrl) {
+        setMessages((prev) => [...prev, data.imageUrl]);
+      } else {
+        console.error("No image URL in response", data);
+        throw new Error("No image URL returned");
+      }
+    } catch (error) {
+      console.error("Detailed error generating image:", error);
+      alert(error instanceof Error ? error.message : "Failed to generate image");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
 
   const handleSendMessage = async () => {
     const user = auth.currentUser;
@@ -161,7 +213,7 @@ const AiGenerator = () => {
         hasImage: !!selectedImage,
       });
   
-      let promptText = `Generate ${contentType} content for the ${industry} industry in a ${tone} tone. about "${inputMessage}".`;
+      let promptText = `Generate ${contentType} content in the ${industry} industry, using a ${tone} tone, based on: "${inputMessage}".`;
       if (contentType === "twitter") {
         promptText +=
           " Provide a thread of 5 tweets, each under 280 characters.";
@@ -202,6 +254,12 @@ const AiGenerator = () => {
         signal: controller.signal,
       });
       const generatedText = result.response.text();
+
+        // Optionally generate an image
+    if (selectedImage || contentType === "Ad Copy") {
+      const imagePrompt = `Create an image for the following content: "${generatedText}"`;
+      await handleGenerateImage(imagePrompt);
+    }
   
       let content: string[];
       if (contentType === "twitter") {
@@ -266,15 +324,6 @@ const AiGenerator = () => {
       abortController.current = null;
     }
   };
-  
-  // const handleCancel = () => {
-  //   if (abortController.current) {
-  //     abortController.current.abort();
-  //     setIsLoading(false);
-  //     alert("Content generation has been stopped.");
-  //   }
-  // };
-  
 
   const handleHistoryItemClick = (item: HistoryItem) => {
     setSelectedHistoryItem(item);
@@ -331,69 +380,71 @@ const AiGenerator = () => {
     }
   };
   return (
-   <div className="lg:col-span-2 space-y-6 mx-auto h-[90vh] bg-gray-10 rounded-l shado w-full pb-5 p-4 md:p-6 lg:p-8">
+   <div className="lg:col-span-2 space-y-6 mx-auto h-[90vh] bg-gray-10 rounded-l shado w-full  p-4 md:p-6 ">
   {/* Configuration Filters */}
-  <div className="bg-[#dbe3ff p-6 rounded-2xl space-y-6">
-    <div className="w-full flex flex-col-reverse lg:flex-row gap-4 items-center justify-between">
-      {/* Filters */}
-      <div className="flex flex-col lg:flex-row gap-4 w-full items-center">
-        <Select value={industry} onValueChange={(value: Industry) => setIndustry(value)}>
-          <SelectTrigger className="w-full md:w-[180px]">
-            <SelectValue placeholder="Industry" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="General">General</SelectItem>
-            <SelectItem value="Tech">Tech</SelectItem>
-            <SelectItem value="Health">Health</SelectItem>
-            <SelectItem value="Education">Education</SelectItem>
-          </SelectContent>
-        </Select>
+  <div className="bg-gradient-to-br from-[#f8fafc] to-[#e3ebf6] mb-8 p-8 rounded-3xl shadow-lg space-y-8">
+  {/* Filters Section */}
+  <div className="flex flex-wrap lg:flex-nowrap items-center justify-between gap-6">
+    <div className="flex flex-wrap lg:flex-nowrap gap-4 w-full items-center">
+      <Select value={industry} onValueChange={(value: Industry) => setIndustry(value)}>
+        <SelectTrigger className="w-full md:w-[200px] bg-white border border-gray-300 rounded-lg shadow-sm hover:border-gray-400 focus:ring-2 focus:ring-[#5a5acb]">
+          <SelectValue placeholder="Industry" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="General">General</SelectItem>
+          <SelectItem value="Tech">Tech</SelectItem>
+          <SelectItem value="Health">Health</SelectItem>
+          <SelectItem value="Education">Education</SelectItem>
+        </SelectContent>
+      </Select>
 
-        <Select value={tone} onValueChange={(value: Tone) => setTone(value)}>
-          <SelectTrigger className="w-full md:w-[180px]">
-            <SelectValue placeholder="Tone" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Professional">Professional</SelectItem>
-            <SelectItem value="Casual">Casual</SelectItem>
-            <SelectItem value="Persuasive">Persuasive</SelectItem>
-          </SelectContent>
-        </Select>
+      <Select value={tone} onValueChange={(value: Tone) => setTone(value)}>
+        <SelectTrigger className="w-full md:w-[200px] bg-white border border-gray-300 rounded-lg shadow-sm hover:border-gray-400 focus:ring-2 focus:ring-[#5a5acb]">
+          <SelectValue placeholder="Tone" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="Professional">Professional</SelectItem>
+          <SelectItem value="Casual">Casual</SelectItem>
+          <SelectItem value="Persuasive">Persuasive</SelectItem>
+        </SelectContent>
+      </Select>
 
-        <Select value={contentType} onValueChange={(value: ContentType) => setContentType(value)}>
-          <SelectTrigger className="w-full md:w-[180px]">
-            <SelectValue placeholder="Content Type" />
-          </SelectTrigger>
-          <SelectContent>
-            {contentTypes.map((type) => (
-              <SelectItem key={type.value} value={type.value}>
-                {type.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <Select value={contentType} onValueChange={(value: ContentType) => setContentType(value)}>
+        <SelectTrigger className="w-full md:w-[200px] bg-white border border-gray-300 rounded-lg shadow-sm hover:border-gray-400 focus:ring-2 focus:ring-[#5a5acb]">
+          <SelectValue placeholder="Content Type" />
+        </SelectTrigger>
+        <SelectContent>
+          {contentTypes.map((type) => (
+            <SelectItem key={type.value} value={type.value}>
+              {type.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
 
-      {/* History Button */}
-      <Sheet>
-        <SheetTrigger asChild>
-          <Button className="px-4 py-2 bg-[#eff1f6] text-[#5a5acb] text-sm rounded-full hover:bg-[#d7e0ff] transition-colors">
-            <span className="font-semibold text-base text-gray-800">History</span>
+    {/* History Button */}
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button className="px-4 py-2 bg-gradient-to-r from-[#eff1f6] to-[#d7e0ff] text-[#5a5acb] font-medium text-sm rounded-lg hover:from-[#d7e0ff] hover:to-[#eff1f6] shadow-md transition">
+          <span className="flex items-center">
+            History
             <Clock className="w-5 h-5 text-[#5a5acb] ml-2" />
-          </Button>
-        </SheetTrigger>
-        <SheetContent className="w-[456px] max-w-full">
-          <SheetHeader>
-            <SheetTitle className="text-lg font-semibold ">History</SheetTitle>
-          </SheetHeader>
-          <div className="space-y-4 mt-4">
-            {history.map((item) => (
-              <div
+          </span>
+        </Button>
+      </SheetTrigger>
+      <SheetContent className="w-[456px] max-w-full overflow-y-auto scroll-me-5">
+        <SheetHeader>
+          <SheetTitle className="text-lg font-semibold text-gray-800">History</SheetTitle>
+        </SheetHeader>
+        <div className="space-y-4 mt-4 overflow-y-aut overflow-y-scroll">
+          {history.map((item) => (
+            <div
               key={item.id}
-              className="p-4 bg-[#dbe3ff]  rounded-xl hover:bg-[#eff3ff] transition-colors cursor-pointer flex justify-between items-center"
+              className="p-4 bg-white border border-gray-200 rounded-lg hover:shadow-lg transition cursor-pointer flex justify-between items-center"
             >
               <div onClick={() => handleHistoryItemClick(item)} className="flex-1">
-                <p className="text-sm text-gray-500 truncate ... w-44">{item.prompt}</p>
+                <p className="text-sm text-gray-600 truncate w-44">{item.prompt}</p>
                 <div className="flex items-center text-xs text-gray-500 mt-2">
                   <Clock className="mr-1 h-3 w-3" />
                   {new Date(item.createdAt).toLocaleString()}
@@ -401,80 +452,94 @@ const AiGenerator = () => {
               </div>
               <Button
                 variant="destructive"
-                className="ml-4 bg-red-500 text-white px-2 py-1 rounded-lg"
+                className="ml-4 bg-red-500 text-white px-3 py-1 rounded-lg"
                 onClick={() => handleDeleteHistoryItem(item.id)}
               >
                 Delete
               </Button>
             </div>
-            ))}
-          </div>
-        </SheetContent>
-      </Sheet>
-    </div>
+          ))}
+        </div>
+      </SheetContent>
+    </Sheet>
+  </div>
 
-    {/* Prompt Area */}
-    <div>
-      <label htmlFor="prompt" className="block text-left text-sm font-medium mb-2 text-gray-800">
-        Prompt
-      </label>
-      <Textarea
-        id="prompt"
-        placeholder="Enter your prompt here..."
-        value={inputMessage}
-        onChange={(e) => setInputMessage(e.target.value)}
-        rows={4}
-        className="w-full bg-[#eff3ff] border-none rounded-xl resize-none"
-      />
-    </div>
+  {/* Prompt Area */}
+  <div>
+    {/* <label htmlFor="prompt" className="block text-sm font-medium text-gray-800 mb-2">
+      Prompt
+    </label> */}
+    <textarea
+      id="prompt"
+      placeholder="Enter your prompt here..."
+      value={inputMessage}
+      onChange={(e) => setInputMessage(e.target.value)}
+      rows={4}
+      className="w-full bg-transparent border-none rounded-none focus:outline-none focus:ring-0 outline-none resize-none"
+    />
+  </div>
 
-    {/* Upload Image */}
-    <div>
-      <label className="block text-left text-sm font-medium mb-2 text-gray-800">
-        Upload Image
-      </label>
-      <div className="flex items-center space-x-3">
-        <Input
-          type="file"
-          accept="image/*"
-          onChange={handleImageChange}
-          className="hidden"
-          id="image-upload"
+  {/* Upload Image */}
+  {/* Upload Image and Preview */}
+  <div>
+  <div className="flex items-center space-x-3">
+    <Input
+      type="file"
+      accept="image/*"
+      onChange={handleImageChange}
+      className="hidden"
+      id="image-upload"
+    />
+    <label
+      htmlFor="image-upload"
+      className="cursor-pointer flex items-center justify-center px-4 py-2 bg-gradient-to-r from-gray-300 to-gray-400 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition"
+    >
+      <Upload className="mr-2 h-5 w-5" />
+      <span>Upload Image</span>
+    </label>
+    {selectedImage && <span className="text-sm text-gray-600">{selectedImage.name}</span>}
+  </div>
+
+  {imagePreview && (
+    <div className="mt-4 flex items-start">
+      <div className="relative inline-block">
+        <img
+          src={imagePreview}
+          alt="Selected preview"
+          className="w-full h-auto max-h-[100px] object-contain rounded-md"
         />
-        <label
-          htmlFor="image-upload"
-          className="cursor-pointer flex items-center justify-center px-4 py-2 bg-gray-300 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors"
+        <button
+          onClick={handleRemoveImage}
+          className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition"
+          aria-label="Remove Image"
         >
-          <Upload className="mr-2 h-5 w-5" />
-          <span>Upload Image</span>
-        </label>
-        {selectedImage && (
-          <span className="text-sm text-gray-600">
-            {selectedImage.name}
-          </span>
-        )}
+          ✕
+        </button>
       </div>
     </div>
+  )}
+</div>
 
-    {/* Action Buttons */}
-    {!isLoading ? (
-      <Button
-        onClick={handleSendMessage}
-        className="px-4 py-2 w-full bg-[#eff3ff] text-[#5a5acb] text-sm rounded-full hover:bg-[#d7e0ff] transition-colors"
-      >
-        <span>Generate Content</span>
-        <FaArrowUp className="ml-2 w-5 h-5" />
-      </Button>
-    ) : (
-      <Button
-        onClick={handleCancel}
-        className="px-4 py-2 w-full bg-transparent text-red-500 text-sm hover:text-red-600"
-      >
-        <span>Stop Generating Content</span>
-        <FaRegStopCircle className="ml-2 w-5 h-5" />
-      </Button>
-    )}
-  </div>
+
+
+  {/* Action Buttons */}
+  {!isLoading ? (
+    <Button
+      onClick={handleSendMessage}
+      className="w-full px-4 py-2 bg-gradient-to-r from-[#eff1f6] to-[#d7e0ff] text-[#5a5acb] font-semibold text-sm rounded-lg hover:from-[#d7e0ff] hover:to-[#eff1f6] transition shadow-md"
+    >
+      Generate Content
+    </Button>
+  ) : (
+    <Button
+      onClick={handleCancel}
+      className="w-full px-4 py-2 bg-red-100 text-red-500 font-medium text-sm rounded-lg hover:bg-red-200 transition"
+    >
+      Stop Generating Content
+    </Button>
+  )}
+</div>
+
 
   {/* Content Display */}
    {(selectedHistoryItem || messages.length > 0) && (
@@ -519,6 +584,16 @@ const AiGenerator = () => {
           </ReactMarkdown>
         </div>
       )}
+      {/* Render the generated image if present */}
+    {messages.length > 0 && messages[messages.length - 1].startsWith("http") && (
+      <div className="mt-4">
+        <img
+          src={messages[messages.length - 1]} 
+          alt="Generated Image" 
+          className="w-full h-auto max-h-[300px] object-contain rounded-md"
+        />
+      </div>
+    )}
       </div>
     )}
 </div>
