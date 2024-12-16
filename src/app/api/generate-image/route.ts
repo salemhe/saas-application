@@ -1,59 +1,64 @@
 import { NextRequest, NextResponse } from 'next/server';
+import axios from 'axios';
+import FormData from 'form-data';
 
 export async function POST(request: NextRequest) {
   try {
+    // Parse the incoming request body
     const { prompt } = await request.json();
 
-    // Log the prompt to verify it's being received correctly
-    console.log("Received image generation prompt:", prompt);
-
-    // Verify API key is present
-    if (!process.env.OPENAI_API_KEY) {
-      console.error("Missing OpenAI API Key");
-      return NextResponse.json({ error: "API key is missing" }, { status: 500 });
+    // Validate prompt
+    if (!prompt) {
+      return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
     }
 
-    try {
-      const response = await fetch("https://api.openai.com/v1/images/generations", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-          "Content-Type": "application/json",
+    // Prepare payload for Stability AI
+    const payload = {
+      prompt: prompt,
+      output_format: "webp",
+      // Optional: Add more parameters as needed
+      style: "cinematic", // You can adjust this
+      aspect_ratio: "1:1"
+    };
+
+    // Make request to Stability AI
+    const response = await axios.postForm(
+      `https://api.stability.ai/v2beta/stable-image/generate/core`,
+      axios.toFormData(payload, new FormData()),
+      {
+        validateStatus: undefined,
+        responseType: "arraybuffer",
+        headers: { 
+          Authorization: `Bearer ${process.env.STABILITY_API_KEY}`, 
+          Accept: "image/*" 
         },
-        body: JSON.stringify({
-          prompt,
-          n: 1,
-          size: "1024x1024",
-          model: "dall-e-3" // Specify the model explicitly
-        }),
+      }
+    );
+
+    // Check response status
+    if (response.status === 200) {
+      // Convert image to base64
+      const base64Image = Buffer.from(response.data).toString('base64');
+      const dataUri = `data:image/webp;base64,${base64Image}`;
+
+      return NextResponse.json({ 
+        imageUrl: dataUri 
       });
-
-      // Log the full response for debugging
-      const responseData = await response.json();
-      console.log("OpenAI API Response:", responseData);
-
-      // Check for API-level errors
-      if (!response.ok) {
-        console.error("OpenAI API Error:", responseData);
-        return NextResponse.json({ 
-          error: responseData.error?.message || "Failed to generate image via OpenAI" 
-        }, { status: 500 });
-      }
-
-      const imageUrl = responseData.data[0]?.url;
-
-      if (imageUrl) {
-        return NextResponse.json({ imageUrl });
-      } else {
-        console.error("No image URL in response", responseData);
-        return NextResponse.json({ error: "Failed to generate image." }, { status: 500 });
-      }
-    } catch (apiError) {
-      console.error("Fetch Error:", apiError);
-      return NextResponse.json({ error: "Error calling OpenAI API" }, { status: 500 });
+    } else {
+      // Log the error details
+      console.error('Stability AI Error:', response.status, response.data.toString());
+      
+      return NextResponse.json({ 
+        error: 'Image generation failed', 
+        details: response.data.toString() 
+      }, { status: 500 });
     }
   } catch (error) {
-    console.error("Unexpected server error:", error);
-    return NextResponse.json({ error: "Internal server error." }, { status: 500 });
+    console.error('Image generation error:', error);
+    
+    return NextResponse.json({ 
+      error: 'Internal server error', 
+      details: error instanceof Error ? error.message : 'Unknown error' 
+    }, { status: 500 });
   }
 }

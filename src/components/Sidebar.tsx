@@ -15,6 +15,7 @@ import {
   PlusCircle,
   LogOut,
   Settings,
+  Menu,
 } from "lucide-react";
 
 import Logo from "@/assets/logosaas.png";
@@ -41,7 +42,7 @@ const Sidebar = () => {
   const [expanded, setExpanded] = useState(true);
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const fetchUserData = async (uid: string) => {
     try {
       setLoading(true);
@@ -84,8 +85,116 @@ const Sidebar = () => {
 
   return (
     <SidebarContext.Provider value={{ expanded }}>
+       {/* Mobile Top Bar */}
+       <div className="md:hidden flex items-center justify-between w-screen fixed z-10 p-4 bg-white shadow-md">
+        <Image src={Logo} alt="Logo" height={40} width={40} />
+        <button 
+          onClick={() => setIsMobileSidebarOpen(true)} 
+          className="p-2 rounded-lg bg-gray-200 hover:bg-gray-300"
+          aria-label="Open Menu"
+        >
+          <Menu size={24} />
+        </button>
+      </div>
+
+        {/* Mobile Sidebar Overlay */}
+        {isMobileSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-20 md:hidden" 
+          onClick={() => setIsMobileSidebarOpen(false)}
+        />
+      )}
+       {/* Mobile Sidebar */}
+       <aside
+        className={`
+          fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-30 transform transition-transform duration-300
+          md:hidden
+          ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}
+      >
+        <div className="p-4 flex items-center justify-between">
+          <Image src={Logo} alt="Logo" height={40} width={40} />
+          <button 
+            onClick={() => setIsMobileSidebarOpen(false)} 
+            className="p-2 rounded-lg bg-gray-200 hover:bg-gray-300"
+            aria-label="Close Menu"
+          >
+            <ChevronLeft size={20} />
+          </button>
+        </div>
+
+        {/* Mobile Sidebar Content (similar to desktop sidebar) */}
+        {loading ? (
+          <div className="p-3">
+            <p>Loading user data...</p>
+          </div>
+        ) : userData ? (
+          <div
+            onClick={() => {
+              router.push("/profile");
+              setIsMobileSidebarOpen(false);
+            }}
+            className="cursor-pointer border-b p-3 flex items-center justify-between hover:bg-gray-100 transition-colors mb-4"
+          >
+            {userData.profileImage ? (
+              <Image
+                src={userData.profileImage}
+                alt="User Avatar"
+                width={40}
+                height={40}
+                className="rounded-full"
+              />
+            ) : (
+              <div className="bg-gray-500 w-10 h-10 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold">
+                  {userData.name?.charAt(0).toUpperCase() || "U"}
+                </span>
+              </div>
+            )}
+            <div className="ml-3 flex-1">
+              <h4 className="font-semibold">{userData.name || "User Name"}</h4>
+              <p className="text-xs text-gray-600">{userData.email}</p>
+            </div>
+          </div>
+        ) : (
+          <p>No user data available.</p>
+        )}
+
+        {/* Mobile Sidebar Menu */}
+        <nav className="px-4 space-y-2">
+          {menuItems.map((item) => (
+            <Link 
+              key={item.text} 
+              href={item.href}
+              onClick={() => setIsMobileSidebarOpen(false)}
+            >
+              <div
+                className={`
+                  flex items-center py-2 px-3 rounded-md cursor-pointer
+                  ${usePathname() === item.href 
+                    ? "bg-[#d7e0ff] text-[#5a5acb]" 
+                    : "hover:bg-gray-100 text-gray-800"
+                  }
+                `}
+              >
+                {item.icon}
+                <span className="ml-3">{item.text}</span>
+              </div>
+            </Link>
+          ))}
+          
+          <button
+            onClick={handleLogout}
+            className="flex items-center px-4 py-2 text-sm text-red-500 hover:bg-gray-200 w-full"
+          >
+            <LogOut size={16} className="mr-2" />
+            Logout
+          </button>
+        </nav>
+      </aside>
+      {/* desktop */}
       <aside
-        className={`min-h-screen ${expanded ? "w-72" : "w-20"} transition-all duration-300 z-10 fixed  top-0 left-0 flex flex-col bg-white text-black shadow-xl border-r`}
+        className={`min-h-screen ${expanded ? "w-72" : "w-20"} hidden transition-all duration-300 z-10 fixed   top-0 left-0 md:flex flex-col bg-white text-black shadow-xl border-r`}
       >
         {/* Sidebar Header */}
         <div className="p-4 flex items-center justify-between">

@@ -56,6 +56,7 @@ interface HistoryItem {
   user: any;
   tone?: any;
   industry?: any;
+  generatedImageBase64?: string;
   createdAt: any;
 }
 
@@ -107,6 +108,7 @@ const AiGenerator = () => {
             user: data.user,
             tone: data.tone || "N/A", // Add tone field
             industry: data.industry || "N/A", // Add industry field
+            generatedImageBase64: data.generatedImageBase64 || null,
             createdAt: data.createdAt ? data.createdAt.toDate() : new Date(),
           };
         });
@@ -140,8 +142,7 @@ const AiGenerator = () => {
   const handleGenerateImage = async (prompt: string) => {
     try {
       setIsLoading(true);
-  
-      console.log("Generating image with prompt:", prompt); // Add logging
+      console.log("Generating image with prompt:", prompt);
   
       const response = await fetch("/api/generate-image", {
         method: "POST",
@@ -151,31 +152,42 @@ const AiGenerator = () => {
         body: JSON.stringify({ prompt }),
       });
   
-      console.log("Response status:", response.status); // Log response status
+      console.log("Response status:", response.status);
   
+      // Parse the response JSON
+      const data = await response.json();
+  
+      // Check for errors in the response
       if (!response.ok) {
-        const errorText = await response.text(); // Try to get more detailed error
-        console.error("Error response:", errorText);
-        throw new Error(errorText || "Image generation failed");
+        console.error("Image generation error:", data);
+        throw new Error(data.error || "Image generation failed");
       }
   
-      const data = await response.json();
-      console.log("Received data:", data); // Log received data
-  
-      if (data.imageUrl) {
-        setMessages((prev) => [...prev, data.imageUrl]);
-      } else {
-        console.error("No image URL in response", data);
+      // Validate the image URL
+      if (!data.imageUrl) {
         throw new Error("No image URL returned");
       }
+  
+      // Add the image to messages
+      setMessages((prev) => [...prev, data.imageUrl]);
+      
+      return data.imageUrl;
     } catch (error) {
       console.error("Detailed error generating image:", error);
-      alert(error instanceof Error ? error.message : "Failed to generate image");
+      
+      // More informative error handling
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : "Failed to generate image";
+      
+      // Optional: show a user-friendly error
+      alert(errorMessage);
+      
+      return null;
     } finally {
       setIsLoading(false);
     }
   };
-  
 
   const handleSendMessage = async () => {
     const user = auth.currentUser;
@@ -203,7 +215,8 @@ const AiGenerator = () => {
       const model = genAI.getGenerativeModel({
         model: "gemini-1.5-flash",
       });
-  
+      console.log(Object.keys(genAI.getGenerativeModel({ model: "gemini-1.5-flash" })));
+
       console.log({
         user: user.uid,
         contentType,
@@ -255,11 +268,12 @@ const AiGenerator = () => {
       });
       const generatedText = result.response.text();
 
-        // Optionally generate an image
-    if (selectedImage || contentType === "Ad Copy") {
-      const imagePrompt = `Create an image for the following content: "${generatedText}"`;
-      await handleGenerateImage(imagePrompt);
-    }
+       // Optionally generate an image
+      let generatedImageBase64 = null;
+      if (selectedImage || contentType === "Ad Copy") {
+        const imagePrompt = `Create an image for the following content: "${generatedText}"`;
+        generatedImageBase64 = await handleGenerateImage(imagePrompt);
+      }
   
       let content: string[];
       if (contentType === "twitter") {
@@ -280,6 +294,7 @@ const AiGenerator = () => {
         contentType: contentType,
         tone: tone,
         industry: industry,
+        ...(generatedImageBase64 && { generatedImageBase64 }), 
         createdAt: serverTimestamp(),
       });
   
@@ -292,6 +307,7 @@ const AiGenerator = () => {
           contentType: contentType,
           tone: tone,
           industry: industry,
+          ...(generatedImageBase64 && { generatedImageBase64 }), 
           createdAt: new Date(),
         },
         ...prevHistory,
@@ -324,6 +340,54 @@ const AiGenerator = () => {
       abortController.current = null;
     }
   };
+
+  const renderImages = () => {
+    const imageUrls = messages.filter((msg) =>
+      typeof msg === "string" && (msg.startsWith("http") || msg.startsWith("data:image"))
+    );
+  
+    // Include the base64 image from history
+    const historyImage = selectedHistoryItem?.generatedImageBase64;
+  
+    const allImages = [...imageUrls, ...(historyImage ? [historyImage] : [])];
+  
+    if (allImages.length === 0) return null;
+  
+    return (
+      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  {allImages.map((imageUrl, index) => (
+    <div
+      key={index}
+      className="relative overflow-hidden rounded-lg shadow-lg transform transition-transform duration-300 hover:scale-105"
+    >
+      {/* Image */}
+      <img
+        src={imageUrl}
+        alt={`Generated Image ${index + 1}`}
+        className="w-full h-auto max-h-[400px] object-cover rounded-lg"
+      />
+      
+      {/* Overlay */}
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4 text-white text-sm opacity-0 transition-opacity duration-300 hover:opacity-100 flex justify-between items-center">
+        <span>Generated Image {index + 1}</span>
+        {/* Download Button */}
+        <a
+          href={imageUrl}
+          download={`Generated_Image_${index + 1}`}
+          className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 rounded-lg"
+        >
+          Download
+        </a>
+      </div>
+    </div>
+  ))}
+</div>
+
+    
+
+    );
+  };
+  
 
   const handleHistoryItemClick = (item: HistoryItem) => {
     setSelectedHistoryItem(item);
@@ -380,9 +444,9 @@ const AiGenerator = () => {
     }
   };
   return (
-   <div className="lg:col-span-2 space-y-6 mx-auto h-[90vh] bg-gray-10 rounded-l shado w-full  p-4 md:p-6 ">
+   <div className="lg:col-span-2 space-y-6 mx-auto h-[90vh] bg-gray-10 rounded-l  w-full mt-32 md:mt-0 md:p-6 ">
   {/* Configuration Filters */}
-  <div className="bg-gradient-to-br from-[#f8fafc] to-[#e3ebf6] mb-8 p-8 rounded-3xl shadow-lg space-y-8">
+  <div className="bg-gradient-to-br from-[#f8fafc] to-[#e3ebf6] mb-8 p-4 md:p-8 rounded-3xl w-full md:w-full shadow-lg space-y-8">
   {/* Filters Section */}
   <div className="flex flex-wrap lg:flex-nowrap items-center justify-between gap-6">
     <div className="flex flex-wrap lg:flex-nowrap gap-4 w-full items-center">
@@ -577,23 +641,46 @@ const AiGenerator = () => {
         </div>
       ) : (
         <div className="bg- p-4 rounded-xl">
-          <ReactMarkdown className="prose prose-inver text-gray-600 text-left max-w-none text-sm">
+          {renderImages()}
+          <ReactMarkdown className="prose prose-inver mt-16 text-gray-600 text-left max-w-none text-sm">
             {selectedHistoryItem
               ? selectedHistoryItem.content
               : messages[0]}
           </ReactMarkdown>
+          
         </div>
       )}
+      {messages.length > 0 && (
+  <div className="mt-4">
+    
+    
+    {messages.filter(msg => 
+      typeof msg === 'string' && (msg.startsWith('http') || msg.startsWith('data:image'))
+    ).map((imageUrl, index) => (
+      <img
+        key={index}
+        src={imageUrl}
+        alt={`Generated Image ${index + 1}`}
+        className="w-full h-auto max-h-[300px] object-contain rounded-md"
+        onError={(e) => {
+          console.error('Image load error', e);
+          console.log('Problematic image URL:', imageUrl);
+        }}
+      />
+    ))}
+  </div>
+)}
+
       {/* Render the generated image if present */}
-    {messages.length > 0 && messages[messages.length - 1].startsWith("http") && (
-      <div className="mt-4">
-        <img
-          src={messages[messages.length - 1]} 
-          alt="Generated Image" 
-          className="w-full h-auto max-h-[300px] object-contain rounded-md"
-        />
-      </div>
-    )}
+      {messages.length > 0 && (messages[messages.length - 1].startsWith("http") || messages[messages.length - 1].startsWith("data:image")) && (
+  <div className="mt-4">
+    <img
+      src={messages[messages.length - 1]} 
+      alt="Generated Image" 
+      className="w-full h-auto max-h-[300px] object-contain rounded-md"
+    />
+  </div>
+)}
       </div>
     )}
 </div>
@@ -604,133 +691,3 @@ export default AiGenerator;
 
 
 
-// const generateResponseFromGemini = async (
-//   customPrompt: string,
-//   image?: string
-// ): Promise<string> => {
-//   const baseContext = `Generate a ${contentType} for the ${industry} industry in a ${tone} tone.`;
-//   const imageContext = image ? `Image attached: ${image}` : "";
-//   const fullPrompt = customPrompt
-//     ? `${baseContext} ${imageContext} Additional context: ${customPrompt}`
-//     : baseContext;
-
-//   abortController.current = new AbortController();
-
-//   try {
-//     const genAI = new GoogleGenerativeAI(
-//       process.env.NEXT_PUBLIC_API_KEY || ""
-//     );
-//     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-//     const result = await model.generateContent(fullPrompt, {
-//       signal: abortController.current.signal,
-//     });
-//     const response = result.response;
-//     return response.text();
-//   } catch (error: any) {
-//     if (error.name === "AbortError") {
-//       console.error("Request aborted");
-//       return "Content generation was canceled.";
-//     }
-//     console.error("Error fetching response from Gemini:", error);
-//     return "An error occurred while generating content. Please try again.";
-//   } finally {
-//     abortController.current = null;
-//   }
-// };
-
-// const convertToBase64 = (file: File): Promise<string> => {
-//   return new Promise((resolve, reject) => {
-//     const reader = new FileReader();
-//     reader.readAsDataURL(file);
-//     reader.onload = () => resolve(reader.result as string);
-//     reader.onerror = (error) => reject(error);
-//   });
-// };
-
-// const handleSendMessage = async () => {
-  
-
-
-//   if (!inputMessage.trim() && !selectedImage) return;
-
-//   let base64Image = "";
-//   if (selectedImage) {
-//     base64Image = await convertToBase64(selectedImage);
-//   }
-
-//   // Add user message
-//   setMessages((prev) => [
-//     ...prev,
-//     {
-//       id: Date.now(),
-//       text: inputMessage,
-//       sender: "user",
-//       image: base64Image || undefined,
-//     },
-//   ]);
-
-//   setInputMessage("");
-//   setSelectedImage(null);
-
-//   setIsLoading(true);
-//   try {
-//     const aiResponse = await generateResponseFromGemini(inputMessage, base64Image);
-//     // Add AI response
-//     setMessages((prev) => [
-//       ...prev,
-//       {
-//         id: Date.now() + 1,
-//         text: aiResponse,
-//         sender: "ai",
-//       },
-//     ]);
-//   } finally {
-//     setIsLoading(false);
-//   }
-// };
-
-{/* <div className="flex-grow overflow-y-auto p-4 space-y-4">
-    {messages.length > 0 ? (
-      messages.map((message) => (
-        <div
-        key={message}
-        className={`flex ${
-          message.sender === "user" ? "justify-end" : "justify-start"
-        } mb-4`}
-      >
-        <div
-          className={`max-w-[80%] p-4 rounded-lg shadow-md ${
-            message.sender === "user"
-              ? "bg-[#d7e0ff] text-[#5a5acb]"
-              : "bg-gray-100 text-gray-800"
-          }`}
-        >
-          {message.image && (
-            <Image
-            width={100}
-            height={100}
-              src={message.image}
-              alt="User Uploaded"
-              className="mb-2 w-full h-auto rounded"
-            />
-          )}
-          <FormattedAdCopy content={message.text} />
-        </div>
-      </div>
-      ))
-    ) : (
-      <div className="flex flex-col justify-center items-center h-full text-gray-400">
-        <p className="text-sm">Generate tailored content through an interactive chat experience.</p>
-        <p>What can I help with?</p>
-      </div>
-    )}
-
-    {isLoading && (
-      <div className="flex justify-start mb-4">
-        <div className="bg-gray-100 text-gray-800 p-4 rounded-lg shadow-md animate-pulse">
-          Generating content...
-        </div>
-      </div>
-    )}
-  </div> */}
