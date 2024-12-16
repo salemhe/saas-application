@@ -85,7 +85,7 @@ const Sidebar = () => {
   return (
     <SidebarContext.Provider value={{ expanded }}>
       <aside
-        className={`min-h-screen ${expanded ? "w-72" : "w-20"} transition-all duration-300 z-10 fixe  top-0 left-0 flex flex-col bg-white text-black shadow-xl border-r`}
+        className={`min-h-screen ${expanded ? "w-72" : "w-20"} transition-all duration-300 z-10 fixed  top-0 left-0 flex flex-col bg-white text-black shadow-xl border-r`}
       >
         {/* Sidebar Header */}
         <div className="p-4 flex items-center justify-between">
