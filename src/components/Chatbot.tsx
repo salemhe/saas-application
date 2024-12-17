@@ -17,13 +17,10 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
-import { FaArrowUp, FaRegStopCircle } from "react-icons/fa";
-import { Textarea } from "./ui/textarea";
 import { Upload, Copy, Clock } from "lucide-react";
 import { auth, db } from "../../firebase";
 import { serverTimestamp, addDoc, collection, orderBy, query, where, getDocs, deleteDoc, doc } from 'firebase/firestore';
-import { TwitterMock } from "./social-mocks/TwitterMock";
-import { InstagramMock } from "./social-mocks/InstagramMock";
+import Image from "next/image";
 type Industry = "General" | "Tech" | "Health" | "Education";
 type Tone = "Professional" | "Casual" | "Persuasive";
 type ContentType = "Ad Copy" | "Twitter Post" | "Instagram Caption" | "Facebook Post" | "LinkedIn Post";
@@ -361,7 +358,9 @@ const AiGenerator = () => {
       className="relative overflow-hidden rounded-lg shadow-lg transform transition-transform duration-300 hover:scale-105"
     >
       {/* Image */}
-      <img
+      <Image
+        width={100}
+        height={100}
         src={imageUrl}
         alt={`Generated Image ${index + 1}`}
         className="w-full h-auto max-h-[400px] object-cover rounded-lg"
@@ -404,18 +403,18 @@ const AiGenerator = () => {
     navigator.clipboard.writeText(text);
   };
 
-  const renderContentMock = () => {
-    if (messages.length === 0) return null;
+  // const renderContentMock = () => {
+  //   if (messages.length === 0) return null;
 
-    switch (contentType) {
-      case "twitter":
-        return <TwitterMock content={messages} />;
-      case "instagram":
-        return <InstagramMock content={messages[0]} />;
-      default:
-        return null;
-    }
-  };
+  //   switch (contentType) {
+  //     case "twitter":
+  //       return <TwitterMock content={messages} />;
+  //     case "instagram":
+  //       return <InstagramMock content={messages[0]} />;
+  //     default:
+  //       return null;
+  //   }
+  // };
 
   const handleCancel = () => {
     if (abortController.current) {
@@ -567,7 +566,9 @@ const AiGenerator = () => {
   {imagePreview && (
     <div className="mt-4 flex items-start">
       <div className="relative inline-block">
-        <img
+        <Image
+          width={100}
+          height={100}
           src={imagePreview}
           alt="Selected preview"
           className="w-full h-auto max-h-[100px] object-contain rounded-md"
@@ -650,37 +651,6 @@ const AiGenerator = () => {
           
         </div>
       )}
-      {messages.length > 0 && (
-  <div className="mt-4">
-    
-    
-    {messages.filter(msg => 
-      typeof msg === 'string' && (msg.startsWith('http') || msg.startsWith('data:image'))
-    ).map((imageUrl, index) => (
-      <img
-        key={index}
-        src={imageUrl}
-        alt={`Generated Image ${index + 1}`}
-        className="w-full h-auto max-h-[300px] object-contain rounded-md"
-        onError={(e) => {
-          console.error('Image load error', e);
-          console.log('Problematic image URL:', imageUrl);
-        }}
-      />
-    ))}
-  </div>
-)}
-
-      {/* Render the generated image if present */}
-      {messages.length > 0 && (messages[messages.length - 1].startsWith("http") || messages[messages.length - 1].startsWith("data:image")) && (
-  <div className="mt-4">
-    <img
-      src={messages[messages.length - 1]} 
-      alt="Generated Image" 
-      className="w-full h-auto max-h-[300px] object-contain rounded-md"
-    />
-  </div>
-)}
       </div>
     )}
 </div>

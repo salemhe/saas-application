@@ -43,6 +43,9 @@ const Sidebar = () => {
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  const pathname = usePathname();
+
   const fetchUserData = async (uid: string) => {
     try {
       setLoading(true);
@@ -171,7 +174,7 @@ const Sidebar = () => {
               <div
                 className={`
                   flex items-center py-2 px-3 rounded-md cursor-pointer
-                  ${usePathname() === item.href 
+                  ${pathname === item.href 
                     ? "bg-[#d7e0ff] text-[#5a5acb]" 
                     : "hover:bg-gray-100 text-gray-800"
                   }
