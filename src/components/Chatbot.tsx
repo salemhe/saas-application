@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
-import { Upload, Copy, Clock } from "lucide-react";
+import {  Copy, Clock, SendHorizontal, CircleStop, ImageIcon } from "lucide-react";
 import { auth, db } from "../../firebase";
 import { serverTimestamp, addDoc, collection, orderBy, query, where, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import Image from "next/image";
@@ -443,217 +443,214 @@ const AiGenerator = () => {
     }
   };
   return (
-   <div className="lg:col-span-2 space-y-6 mx-auto h-[90vh] bg-gray-10 rounded-l  w-full mt-32 md:mt-0 md:p-6 ">
-  {/* Configuration Filters */}
-  <div className="bg-gradient-to-br from-[#f8fafc] to-[#e3ebf6] mb-8 p-4 md:p-8 rounded-3xl w-full md:w-full shadow-lg space-y-8">
-  {/* Filters Section */}
-  <div className="flex flex-wrap lg:flex-nowrap items-center justify-between gap-6">
-    <div className="flex flex-wrap lg:flex-nowrap gap-4 w-full items-center">
-      <Select value={industry} onValueChange={(value: Industry) => setIndustry(value)}>
-        <SelectTrigger className="w-full md:w-[200px] bg-white border border-gray-300 rounded-lg shadow-sm hover:border-gray-400 focus:ring-2 focus:ring-[#5a5acb]">
-          <SelectValue placeholder="Industry" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="General">General</SelectItem>
-          <SelectItem value="Tech">Tech</SelectItem>
-          <SelectItem value="Health">Health</SelectItem>
-          <SelectItem value="Education">Education</SelectItem>
-        </SelectContent>
-      </Select>
+    <div className="lg:col-span-2 space-y-6 mx-auto h-[90vh] bg-gray-10 rounded-l  w-full mt-32 md:mt-0 md:p-6 ">
+      {/* Configuration Filters */}
+      <div className="bg-gradient-to- from-[#f8fafc] to-[#e3ebf6 mb-8 p-4 md:p-8 rounded-3xl w-full md:w-full shadow-l space-y-8">
+      {/* Filters Section */}
+      <div className="flex flex-wrap lg:flex-nowrap items-center justify-between gap-6">
+        <div className="flex flex-wrap lg:flex-nowrap gap-4 w-full items-center">
+          <Select value={industry} onValueChange={(value: Industry) => setIndustry(value)}>
+            <SelectTrigger className="w-full md:w-[200px] bg-white border border-gray-300 rounded-lg shadow-sm hover:border-gray-400 focus:ring-2 focus:ring-[#5a5acb]">
+              <SelectValue placeholder="Industry" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="General">General</SelectItem>
+              <SelectItem value="Tech">Tech</SelectItem>
+              <SelectItem value="Health">Health</SelectItem>
+              <SelectItem value="Education">Education</SelectItem>
+            </SelectContent>
+          </Select>
 
-      <Select value={tone} onValueChange={(value: Tone) => setTone(value)}>
-        <SelectTrigger className="w-full md:w-[200px] bg-white border border-gray-300 rounded-lg shadow-sm hover:border-gray-400 focus:ring-2 focus:ring-[#5a5acb]">
-          <SelectValue placeholder="Tone" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="Professional">Professional</SelectItem>
-          <SelectItem value="Casual">Casual</SelectItem>
-          <SelectItem value="Persuasive">Persuasive</SelectItem>
-        </SelectContent>
-      </Select>
+          <Select value={tone} onValueChange={(value: Tone) => setTone(value)}>
+            <SelectTrigger className="w-full md:w-[200px] bg-white border border-gray-300 rounded-lg shadow-sm hover:border-gray-400 focus:ring-2 focus:ring-[#5a5acb]">
+              <SelectValue placeholder="Tone" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Professional">Professional</SelectItem>
+              <SelectItem value="Casual">Casual</SelectItem>
+              <SelectItem value="Persuasive">Persuasive</SelectItem>
+            </SelectContent>
+          </Select>
 
-      <Select value={contentType} onValueChange={(value: ContentType) => setContentType(value)}>
-        <SelectTrigger className="w-full md:w-[200px] bg-white border border-gray-300 rounded-lg shadow-sm hover:border-gray-400 focus:ring-2 focus:ring-[#5a5acb]">
-          <SelectValue placeholder="Content Type" />
-        </SelectTrigger>
-        <SelectContent>
-          {contentTypes.map((type) => (
-            <SelectItem key={type.value} value={type.value}>
-              {type.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
-
-    {/* History Button */}
-    <Sheet>
-      <SheetTrigger asChild>
-        <Button className="px-4 py-2 bg-gradient-to-r from-[#eff1f6] to-[#d7e0ff] text-[#5a5acb] font-medium text-sm rounded-lg hover:from-[#d7e0ff] hover:to-[#eff1f6] shadow-md transition">
-          <span className="flex items-center">
-            History
-            <Clock className="w-5 h-5 text-[#5a5acb] ml-2" />
-          </span>
-        </Button>
-      </SheetTrigger>
-      <SheetContent className="w-[456px] max-w-full overflow-y-auto scroll-me-5">
-        <SheetHeader>
-          <SheetTitle className="text-lg font-semibold text-gray-800">History</SheetTitle>
-        </SheetHeader>
-        <div className="space-y-4 mt-4 overflow-y-aut overflow-y-scroll">
-          {history.map((item) => (
-            <div
-              key={item.id}
-              className="p-4 bg-white border border-gray-200 rounded-lg hover:shadow-lg transition cursor-pointer flex justify-between items-center"
-            >
-              <div onClick={() => handleHistoryItemClick(item)} className="flex-1">
-                <p className="text-sm text-gray-600 truncate w-44">{item.prompt}</p>
-                <div className="flex items-center text-xs text-gray-500 mt-2">
-                  <Clock className="mr-1 h-3 w-3" />
-                  {new Date(item.createdAt).toLocaleString()}
-                </div>
-              </div>
-              <Button
-                variant="destructive"
-                className="ml-4 bg-red-500 text-white px-3 py-1 rounded-lg"
-                onClick={() => handleDeleteHistoryItem(item.id)}
-              >
-                Delete
-              </Button>
-            </div>
-          ))}
+          <Select value={contentType} onValueChange={(value: ContentType) => setContentType(value)}>
+            <SelectTrigger className="w-full md:w-[200px] bg-white border border-gray-300 rounded-lg shadow-sm hover:border-gray-400 focus:ring-2 focus:ring-[#5a5acb]">
+              <SelectValue placeholder="Content Type" />
+            </SelectTrigger>
+            <SelectContent>
+              {contentTypes.map((type) => (
+                <SelectItem key={type.value} value={type.value}>
+                  {type.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-      </SheetContent>
-    </Sheet>
-  </div>
 
-  {/* Prompt Area */}
-  <div>
-    {/* <label htmlFor="prompt" className="block text-sm font-medium text-gray-800 mb-2">
-      Prompt
-    </label> */}
-    <textarea
-      id="prompt"
-      placeholder="Enter your prompt here..."
-      value={inputMessage}
-      onChange={(e) => setInputMessage(e.target.value)}
-      rows={4}
-      className="w-full bg-transparent border-none rounded-none focus:outline-none focus:ring-0 outline-none resize-none"
-    />
-  </div>
-
-  {/* Upload Image */}
-  {/* Upload Image and Preview */}
-  <div>
-  <div className="flex items-center space-x-3">
-    <Input
-      type="file"
-      accept="image/*"
-      onChange={handleImageChange}
-      className="hidden"
-      id="image-upload"
-    />
-    <label
-      htmlFor="image-upload"
-      className="cursor-pointer flex items-center justify-center px-4 py-2 bg-gradient-to-r from-gray-300 to-gray-400 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition"
-    >
-      <Upload className="mr-2 h-5 w-5" />
-      <span>Upload Image</span>
-    </label>
-    {selectedImage && <span className="text-sm text-gray-600">{selectedImage.name}</span>}
-  </div>
-
-  {imagePreview && (
-    <div className="mt-4 flex items-start">
-      <div className="relative inline-block">
-        <Image
-          width={100}
-          height={100}
-          src={imagePreview}
-          alt="Selected preview"
-          className="w-full h-auto max-h-[100px] object-contain rounded-md"
-        />
-        <button
-          onClick={handleRemoveImage}
-          className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition"
-          aria-label="Remove Image"
-        >
-          ✕
-        </button>
-      </div>
-    </div>
-  )}
-</div>
-
-
-
-  {/* Action Buttons */}
-  {!isLoading ? (
-    <Button
-      onClick={handleSendMessage}
-      className="w-full px-4 py-2 bg-gradient-to-r from-[#eff1f6] to-[#d7e0ff] text-[#5a5acb] font-semibold text-sm rounded-lg hover:from-[#d7e0ff] hover:to-[#eff1f6] transition shadow-md"
-    >
-      Generate Content
-    </Button>
-  ) : (
-    <Button
-      onClick={handleCancel}
-      className="w-full px-4 py-2 bg-red-100 text-red-500 font-medium text-sm rounded-lg hover:bg-red-200 transition"
-    >
-      Stop Generating Content
-    </Button>
-  )}
-</div>
-
-
-  {/* Content Display */}
-   {(selectedHistoryItem || messages.length > 0) && (
-    <div className="bg-[#d7e0ff p-6 rounded-2xl space-y-4">
-      <h2 className="text-2xl font-semibold text-[#5a5acb]">
-        {/* {selectedHistoryItem ? "History Item" : "Generated Content"} */}
-        Generated Content
-      </h2>
-      {contentType === "twitter" ? (
-        <div className="space-y-4">
-          {(selectedHistoryItem
-            ? selectedHistoryItem.content.split("\n\n")
-            : messages
-          ).map((tweet: any, index: any) => (
-            <div
-              key={index}
-              className="bg-[#ebf0ff] p-4 rounded-xl relative"
-            >
-              <ReactMarkdown className="prose prose-invert text-gray-500 text-left max-w-none mb-2 text-sm">
-                {tweet}
-              </ReactMarkdown>
-              <div className="flex justify-between items-center text-gray-600 text-xs mt-2">
-                <span>
-                  {tweet.length}/{MAX_TWEET_LENGTH}
-                </span>
-                <Button
-                  onClick={() => copyToClipboard(tweet)}
-                  className="bg-gray-600 hover:bg-gray-500 text-white rounded-full p-2 transition-colors"
+        {/* History Button */}
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button className="px-4 py-2 bg-gradient-to-r from-[#eff1f6] to-[#d7e0ff] text-[#5a5acb] font-medium text-sm rounded-lg hover:from-[#d7e0ff] hover:to-[#eff1f6] shadow-md transition">
+              <span className="flex items-center">
+                History
+                <Clock className="w-5 h-5 text-[#5a5acb] ml-2" />
+              </span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent className="w-[456px] max-w-full overflow-y-auto scroll-me-5">
+            <SheetHeader>
+              <SheetTitle className="text-lg font-semibold text-gray-800">History</SheetTitle>
+            </SheetHeader>
+            <div className="space-y-4 mt-4 overflow-y-aut overflow-y-scroll">
+              {history.map((item) => (
+                <div
+                  key={item.id}
+                  className="p-4 bg-white border border-gray-200 rounded-lg hover:shadow-lg transition cursor-pointer flex justify-between items-center"
                 >
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
+                  <div onClick={() => handleHistoryItemClick(item)} className="flex-1">
+                    <p className="text-sm text-gray-600 truncate w-44">{item.prompt}</p>
+                    <div className="flex items-center text-xs text-gray-500 mt-2">
+                      <Clock className="mr-1 h-3 w-3" />
+                      {new Date(item.createdAt).toLocaleString()}
+                    </div>
+                  </div>
+                  <Button
+                    variant="destructive"
+                    className="ml-4 bg-red-500 text-white px-3 py-1 rounded-lg"
+                    onClick={() => handleDeleteHistoryItem(item.id)}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      ) : (
-        <div className="bg- p-4 rounded-xl">
-          {renderImages()}
-          <ReactMarkdown className="prose prose-inver mt-16 text-gray-600 text-left max-w-none text-sm">
-            {selectedHistoryItem
-              ? selectedHistoryItem.content
-              : messages[0]}
-          </ReactMarkdown>
-          
-        </div>
-      )}
+          </SheetContent>
+        </Sheet>
       </div>
-    )}
-</div>
+
+       {/* Content Display */}
+       {(selectedHistoryItem || messages.length > 0) && (
+          <div className=" max-h-[278px] overflow-y-auto  p-6 rounded-2xl space-y-4">
+            <h2 className="text-2xl font-semibold text-[#5a5acb]">
+              {/* {selectedHistoryItem ? "History Item" : "Generated Content"} */}
+              Generated Content
+            </h2>
+            {contentType === "twitter" ? (
+              <div className="space-y-4">
+                {(selectedHistoryItem
+                  ? selectedHistoryItem.content.split("\n\n")
+                  : messages
+                ).map((tweet: any, index: any) => (
+                  <div
+                    key={index}
+                    className="bg-[#ebf0ff] p-4 rounded-xl relative"
+                  >
+                    <ReactMarkdown className="prose prose-invert text-gray-500 text-left max-w-none mb-2 text-sm">
+                      {tweet}
+                    </ReactMarkdown>
+                    <div className="flex justify-between items-center text-gray-600 text-xs mt-2">
+                      <span>
+                        {tweet.length}/{MAX_TWEET_LENGTH}
+                      </span>
+                      <Button
+                        onClick={() => copyToClipboard(tweet)}
+                        className="bg-gray-600 hover:bg-gray-500 text-white rounded-full p-2 transition-colors"
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg- p-4 rounded-xl">
+                {renderImages()}
+                <ReactMarkdown className="prose prose-inver mt-16 text-gray-600 text-left max-w-none text-sm">
+                  {selectedHistoryItem
+                    ? selectedHistoryItem.content
+                    : messages[0]}
+                </ReactMarkdown>
+                
+              </div>
+            )}
+            </div>
+        )}
+
+        {/* Prompt Area */}
+        <div className="flex ">
+          <div className="flex items-center bg-white rounded-2xl shadow-md absolu border p-2 w-full max-w-3xl mx-auto">
+            {/* Upload Image and Preview */}
+            <div>
+              <div className="flex items-center space-x-3">
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                  id="image-upload"
+                />
+                <label
+                  htmlFor="image-upload"
+                  className="cursor-pointer p-2 text-gray-500 hover:text-gray-700 transition"
+                >
+                  <ImageIcon className="w-6 h-6"/>
+                </label>
+                {/* {selectedImage && <span className="text-sm text-gray-600">{selectedImage.name}</span>} */}
+              </div>
+
+              {imagePreview && (
+                <div className="mt-4 flex items-start">
+                  <div className="relative inline-block">
+                    <Image
+                      width={100}
+                      height={100}
+                      src={imagePreview}
+                      alt="Selected preview"
+                      className="w-full h-auto max-h-[100px] object-contain rounded-md"
+                    />
+                    <button
+                      onClick={handleRemoveImage}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition"
+                      aria-label="Remove Image"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+              <textarea
+                id="prompt"
+                placeholder="Enter your prompt here..."
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                rows={1}
+                className="w-full flex-grow bg-transparent border-none rounded-none focus:outline-none focus:ring-0 outline-none resize-none"
+              />
+            {/* Action Buttons */}
+            {!isLoading ? (
+              <button
+                onClick={handleSendMessage}
+                className=" p-2 text-gray-500 hover:text-blue-600 transition"
+              >
+                <SendHorizontal className="w-6 h-6"/>
+              </button>
+            ) : (
+              <button
+                onClick={handleCancel}
+                className="p-2 text-red-500   transition"
+              >
+                <CircleStop className="w-6 h-6"/>
+              </button>
+            )}
+          </div>
+        
+        </div>
+      </div>
+
+
+     
+    </div>
   );
 };
 
