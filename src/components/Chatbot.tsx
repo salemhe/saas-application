@@ -443,9 +443,9 @@ const AiGenerator = () => {
     }
   };
   return (
-    <div className="lg:col-span-2 space-y-6 mx-auto h-[90vh] bg-gray-10 rounded-l  w-full mt-32 md:mt-0 md:p-6 ">
+    <div className="lg:col-span-2 space-y-6 mx-auto h-[90vh] bg-gray-10 rounded-l  w-full mt-32 md:mt-8 md:p-6 ">
       {/* Configuration Filters */}
-      <div className="bg-gradient-to- from-[#f8fafc] to-[#e3ebf6 mb-8 p-4 md:p-8 rounded-3xl w-full md:w-full shadow-l space-y-8">
+      <div className="bg-gradient-to- relative from-[#f8fafc] to-[#e3ebf6 mb-8 p-4 md:p-8 rounded-3xl w-full md:w-full shadow-l space-y-8">
       {/* Filters Section */}
       <div className="flex flex-wrap lg:flex-nowrap items-center justify-between gap-6">
         <div className="flex flex-wrap lg:flex-nowrap gap-4 w-full items-center">
@@ -528,8 +528,8 @@ const AiGenerator = () => {
       </div>
 
        {/* Content Display */}
-       {(selectedHistoryItem || messages.length > 0) && (
-          <div className=" max-h-[278px] overflow-y-auto  p-6 rounded-2xl space-y-4">
+       {(selectedHistoryItem || messages.length > 0) ? (
+          <div className=" max-h-[328px] overflow-y-auto mb-8 bottom-8 p-6 rounded-2xl space-y-4 " style={{ scrollBehavior: 'smooth' }}>
             <h2 className="text-2xl font-semibold text-[#5a5acb]">
               {/* {selectedHistoryItem ? "History Item" : "Generated Content"} */}
               Generated Content
@@ -573,32 +573,18 @@ const AiGenerator = () => {
               </div>
             )}
             </div>
-        )}
+        ):  (
+          <div className="flex flex-col justify-center items-center h-[55vh]  md:h-[308px] text-gray-400">
+            <p className="text-sm">Generate tailored content through an interactive chat experience.</p>
+            <p>What can I help with?</p>
+          </div>
+        )
+      }
 
         {/* Prompt Area */}
-        <div className="flex ">
-          <div className="flex items-center bg-white rounded-2xl shadow-md absolu border p-2 w-full max-w-3xl mx-auto">
-            {/* Upload Image and Preview */}
-            <div>
-              <div className="flex items-center space-x-3">
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                  id="image-upload"
-                />
-                <label
-                  htmlFor="image-upload"
-                  className="cursor-pointer p-2 text-gray-500 hover:text-gray-700 transition"
-                >
-                  <ImageIcon className="w-6 h-6"/>
-                </label>
-                {/* {selectedImage && <span className="text-sm text-gray-600">{selectedImage.name}</span>} */}
-              </div>
-
-              {imagePreview && (
-                <div className="mt-4 flex items-start">
+        <div className="flex-col bg-white rounded-2xl shadow-md fixed  bottom-2 border p-2 w-full max-w-3xl mx-auto items-center">
+          {imagePreview && (
+                <div className="mt-4 flex ml-4 items-start">
                   <div className="relative inline-block">
                     <Image
                       width={100}
@@ -617,6 +603,28 @@ const AiGenerator = () => {
                   </div>
                 </div>
               )}
+          <div className="flex items-center ">
+            {/* Upload Image and Preview */}
+            <div>
+              
+              <div className="flex items-center space-x-3">
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                  id="image-upload"
+                />
+                <label
+                  htmlFor="image-upload"
+                  className="cursor-pointer p-2 text-gray-500 hover:text-gray-700 transition"
+                >
+                  <ImageIcon className="w-6 h-6"/>
+                </label>
+                {/* {selectedImage && <span className="text-sm text-gray-600">{selectedImage.name}</span>} */}
+              </div>
+
+              
             </div>
             
               <textarea

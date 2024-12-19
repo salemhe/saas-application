@@ -89,11 +89,67 @@ const Sidebar = () => {
   return (
     <SidebarContext.Provider value={{ expanded }}>
        {/* Mobile Top Bar */}
-       <div className="md:hidden flex items-center justify-between w-screen fixed z-10 p-4 bg-white shadow-md">
-        <Image src={Logo} alt="Logo" height={40} width={40} />
+       <div className="md:hidde flex items-center justify-between md:justify-end md:items-end w-screen fixed z-10 p-4 bg-white  shadow-md">
+        <div className="hidden md:flex  justify-self-end">
+        {loading ? (
+          <div className="cursor-pointer border-b p-3 flex items-center justify-between hover:bg-gray-100 transition-colors mb-4">
+            <p>Loading user data...</p>
+          </div>
+        ) : userData ? (
+          <div
+            onClick={() => router.push("/profile")}
+            className="cursor-pointer  flex items-center justify-between hover:bg-gray-100 transition-colors "
+          >
+            {userData.profileImage ? (
+              <Image
+                src={userData.profileImage}
+                alt="User Avatar"
+                width={40}
+                height={40}
+                className="rounded-full w-10 h-10"
+              />
+            ) : (
+              <div className="bg-gray-500 w-10 h-10 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold">
+                  {userData.name?.charAt(0).toUpperCase() || "U"}
+                </span>
+              </div>
+            )}
+            {expanded && (
+              <div className="ml-3">
+                <h4 className="font-semibold">{userData.name || "User Name"}</h4>
+                <p className="text-xs text-gray-600">{userData.email}</p>
+              </div>
+            )}
+            <div className="ml-auto relative">
+              <button
+                onClick={() => setDropdownOpen((prev) => !prev)}
+                className="p-2 rounded-full hover:bg-gray-200"
+                aria-label="Open dropdown"
+              >
+                <MoreVertical size={20} />
+              </button>
+              {dropdownOpen && (
+                <div className="absolute left-0 -mt-10 ml-6 bg-white border rounded-md shadow-md z-10 w-max">
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center px-4 py-2 text-sm text-red-500 hover:bg-gray-200 w-full"
+                  >
+                    <LogOut size={16} className="mr-2" />
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          <p>No user data available.</p>
+        )}
+        </div>
+        <Image src={Logo} alt="Logo" height={40} width={40} className="md:hidden inline-flex" />
         <button 
           onClick={() => setIsMobileSidebarOpen(true)} 
-          className="p-2 rounded-lg bg-gray-200 hover:bg-gray-300"
+          className="p-2 rounded-lg bg-gray-200 hover:bg-gray-300 md:hidden inline-flex"
           aria-label="Open Menu"
         >
           <Menu size={24} />
@@ -127,16 +183,14 @@ const Sidebar = () => {
         </div>
 
         {/* Mobile Sidebar Content (similar to desktop sidebar) */}
+        {/* Profile Section */}
         {loading ? (
-          <div className="p-3">
+          <div className="cursor-pointer border-b p-3 flex items-center justify-between hover:bg-gray-100 transition-colors mb-4">
             <p>Loading user data...</p>
           </div>
         ) : userData ? (
           <div
-            onClick={() => {
-              router.push("/profile");
-              setIsMobileSidebarOpen(false);
-            }}
+            onClick={() => router.push("/profile")}
             className="cursor-pointer border-b p-3 flex items-center justify-between hover:bg-gray-100 transition-colors mb-4"
           >
             {userData.profileImage ? (
@@ -154,9 +208,31 @@ const Sidebar = () => {
                 </span>
               </div>
             )}
-            <div className="ml-3 flex-1">
-              <h4 className="font-semibold">{userData.name || "User Name"}</h4>
-              <p className="text-xs text-gray-600">{userData.email}</p>
+            {expanded && (
+              <div className="ml-3">
+                <h4 className="font-semibold">{userData.name || "User Name"}</h4>
+                <p className="text-xs text-gray-600">{userData.email}</p>
+              </div>
+            )}
+            <div className="ml-auto relative">
+              <button
+                onClick={() => setDropdownOpen((prev) => !prev)}
+                className="p-2 rounded-full hover:bg-gray-200"
+                aria-label="Open dropdown"
+              >
+                <MoreVertical size={20} />
+              </button>
+              {dropdownOpen && (
+                <div className="absolute left-0 -mt-10 ml-6 bg-white border rounded-md shadow-md z-10 w-max">
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center px-4 py-2 text-sm text-red-500 hover:bg-gray-200 w-full"
+                  >
+                    <LogOut size={16} className="mr-2" />
+                    Logout
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         ) : (
@@ -215,62 +291,7 @@ const Sidebar = () => {
           </button>
         </div>
 
-        {/* Profile Section */}
-        {loading ? (
-          <div className="cursor-pointer border-b p-3 flex items-center justify-between hover:bg-gray-100 transition-colors mb-4">
-            <p>Loading user data...</p>
-          </div>
-        ) : userData ? (
-          <div
-            onClick={() => router.push("/profile")}
-            className="cursor-pointer border-b p-3 flex items-center justify-between hover:bg-gray-100 transition-colors mb-4"
-          >
-            {userData.profileImage ? (
-              <Image
-                src={userData.profileImage}
-                alt="User Avatar"
-                width={40}
-                height={40}
-                className="rounded-full"
-              />
-            ) : (
-              <div className="bg-gray-500 w-10 h-10 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold">
-                  {userData.name?.charAt(0).toUpperCase() || "U"}
-                </span>
-              </div>
-            )}
-            {expanded && (
-              <div className="ml-3">
-                <h4 className="font-semibold">{userData.name || "User Name"}</h4>
-                <p className="text-xs text-gray-600">{userData.email}</p>
-              </div>
-            )}
-            <div className="ml-auto relative">
-              <button
-                onClick={() => setDropdownOpen((prev) => !prev)}
-                className="p-2 rounded-full hover:bg-gray-200"
-                aria-label="Open dropdown"
-              >
-                <MoreVertical size={20} />
-              </button>
-              {dropdownOpen && (
-                <div className="absolute left-0 -mt-10 ml-6 bg-white border rounded-md shadow-md z-10 w-max">
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center px-4 py-2 text-sm text-red-500 hover:bg-gray-200 w-full"
-                  >
-                    <LogOut size={16} className="mr-2" />
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        ) : (
-          <p>No user data available.</p>
-        )}
-
+        
         {/* Sidebar Menu */}
         <nav className="flex-1 px-4 space-y-2">
           {menuItems.map((item) => (
