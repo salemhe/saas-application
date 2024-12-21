@@ -4,7 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../../firebase";
-import Sidebar from "@/components/Sidebar";
+import { AppSidebar } from "@/components/app-sidebar"
+import {
+  SidebarInset,
+  SidebarProvider,
+} from "@/components/ui/sidebar"
+import Header from "../../components/header"
 import CampaignForm from "@/components/CampainForm";
 
 function Page() {
@@ -36,22 +41,25 @@ function Page() {
   }, [authenticated]);
 
   return (
-    <div className="flex-col md:flex h-screen">
-      <Sidebar />
+    <SidebarProvider>
+    <AppSidebar />
+    <SidebarInset>
+      <Header />
       <main className="flex-1">
         {loading ? (
           <div className="flex-1 p-6 flex justify-center items-center">
             <div className="w-16 h-16 border-4 border-dashed border-blue-500 animate-spin border-t-transparent rounded-full"></div>
           </div>
         ) : (
-          <div className="max-w-4xl w-full mx-auto mt-42 p-12 flex-1">
+          <div className="max-w-4xl w-full mx-auto mt-12 p-12 flex-1">
             <CampaignForm/>
             {/* <h1 className="text-2xl font-semibold">Campaign Content</h1>
             <p className="mt-4 text-gray-600">This is the content for Campaign.</p> */}
           </div>
         )}
       </main>
-    </div>
+    </SidebarInset>
+    </SidebarProvider>
   );
 }
 

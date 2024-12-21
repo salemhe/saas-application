@@ -1,3 +1,4 @@
+"use client"
 import { useState, useRef, useEffect} from "react";
 import { GoogleGenerativeAI, Part } from "@google/generative-ai";
 import ReactMarkdown from "react-markdown";
@@ -529,7 +530,7 @@ const AiGenerator = () => {
 
        {/* Content Display */}
        {(selectedHistoryItem || messages.length > 0) ? (
-          <div className=" max-h-[328px] overflow-y-auto mb-8 bottom-8 p-6 rounded-2xl space-y-4 " style={{ scrollBehavior: 'smooth' }}>
+          <div className=" max-h-[328px] overflow-y-auto mb-8 bottom-8 p-6 rounded-2xl space-y-4 ">
             <h2 className="text-2xl font-semibold text-[#5a5acb]">
               {/* {selectedHistoryItem ? "History Item" : "Generated Content"} */}
               Generated Content

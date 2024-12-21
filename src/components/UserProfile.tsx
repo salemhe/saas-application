@@ -1,6 +1,11 @@
 "use client";
 
-import Sidebar from "../components/Sidebar";
+import { AppSidebar } from "@/components/app-sidebar"
+import {
+  SidebarInset,
+  SidebarProvider,
+} from "@/components/ui/sidebar"
+import Header from "@/components/header"
 import React, { useState, useEffect } from "react";
 import { auth, db } from "../../firebase"; // Adjust import path as needed
 import {
@@ -185,9 +190,11 @@ export default function ProfileComponent() {
   }, [userData]);
 
   return (
-   <div className="flex">
-    <Sidebar />
-    <div className="flex-1 p-6 fle ml-24 md:ml-0 mx-auto max-w-4xl">
+    <SidebarProvider>
+      <AppSidebar />
+    <SidebarInset>
+      <Header />
+    <div className="flex-1 p-6 fle ml-24 mt-16 md:ml-0 mx-auto max-w-4xl">
     {loading ? (
       <div className="flex-1 p-6 flex justify-center items-center">
         <div className="w-16 h-16 border-4 border-dashed border-blue-500 animate-spin border-t-transparent rounded-full"></div>
@@ -311,7 +318,8 @@ export default function ProfileComponent() {
     </div>
         )}
   </div>
-</div>
+  </SidebarInset>
+  </SidebarProvider>
 
   );
 }
