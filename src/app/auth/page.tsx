@@ -7,7 +7,7 @@ import { auth, db } from '../../../firebase';
 import Image from 'next/image';
 import Logo from '@/assets/logosaas.png'
 import { useRouter } from 'next/navigation';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { FirebaseError } from 'firebase/app';
 
 // Password complexity validation
@@ -181,16 +181,6 @@ export default function SignUp() {
           return;
         }
 
-        // const token = await getIdToken(userCredential.user);
-
-        // await setDoc(doc(db, "users", userCredential.user.uid), {
-        //   name: userCredential.user.displayName || "Anonymous",
-        //   email: userCredential.user.email,
-        //   provider: "email/password",
-        //   token: token,
-        //   emailVerified: true
-        // });
-
         setStatusMessage({ type: 'success', text: 'Signed in successfully!' });
         router.push('/dashboard');
       } else {
@@ -211,7 +201,8 @@ export default function SignUp() {
           email: email,
           provider: "email/password",
           token: token,
-          emailVerified: false // Initially set to false
+          emailVerified: false, // Initially set to false
+          createdAt: serverTimestamp(),
         });
 
         setStatusMessage({ 

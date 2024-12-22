@@ -65,12 +65,6 @@ export function NavUser(
           <LogOut size={20} className="mr-2" />
           <span>Logout</span>
         </SidebarMenuButton>
-        {/* <button
-          onClick={handleLogout}
-          className="flex items-center data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground px-3 py-2 text-sm text-red-500 hover:bg-gray-200 w-full  rounded-md cursor-pointer group transition-colors"
-        >
-          
-        </button> */}
         {/* <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton

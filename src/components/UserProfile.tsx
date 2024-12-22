@@ -8,23 +8,27 @@ import {
 import Header from "@/components/header"
 import React, { useState, useEffect } from "react";
 import { auth, db } from "../../firebase"; // Adjust import path as needed
-import {
-  FacebookAuthProvider,
-  GoogleAuthProvider,
-  linkWithPopup,
-  unlink,
-} from "firebase/auth";
+
+import proimage from "@/assets/proimage.png"
+import image1 from "@/assets/image1.png"
+import Screenshot from "@/assets/Screenshot.png"
+import Tiger from "@/assets/Tiger.png"
+import iPhone16Pro from "@/assets/iPhone16Pro.png"
 import { doc, updateDoc, getDoc } from "firebase/firestore";
 import Image from "next/image";
-import { User, Link2Off, Camera } from "lucide-react";
-import { FaFacebook, FaGoogle } from "react-icons/fa";
+
+import { User, Camera, MapPin, Phone, Mail, Ellipsis, Edit2, ChevronLeft } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export default function ProfileComponent() {
   const [userData, setUserData] = useState<any>(null);
-  const [linkedAccounts, setLinkedAccounts] = useState({
-    facebook: false,
-    google: false,
-  });
+  
   const [profileImage, setProfileImage] = useState<string>("");
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true); 
@@ -44,17 +48,6 @@ export default function ProfileComponent() {
           // Ensure that we always use the profileImage from Firestore if it exists
           setProfileImage(userData.profileImage || "");
         }
-  
-        // Check linked providers
-        const providerData = user.providerData;
-        setLinkedAccounts({
-          facebook: providerData.some(
-            (provider) => provider.providerId === "facebook.com"
-          ),
-          google: providerData.some(
-            (provider) => provider.providerId === "google.com"
-          ),
-        });
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
@@ -64,69 +57,7 @@ export default function ProfileComponent() {
   }, []);
   
 
-  const linkSocialAccount = async (providerName: "facebook" | "google") => {
-    const user = auth.currentUser;
-    if (!user) return;
 
-    try {
-      const provider =
-        providerName === "facebook"
-          ? new FacebookAuthProvider()
-          : new GoogleAuthProvider();
-
-      await linkWithPopup(user, provider);
-
-      // Update Firestore with additional account info
-      const userDocRef = doc(db, "users", user.uid);
-      await updateDoc(userDocRef, {
-        [`${providerName}LinkedAt`]: new Date(),
-      });
-
-      // Update local state
-      setLinkedAccounts((prev) => ({
-        ...prev,
-        [providerName]: true,
-      }));
-
-      alert(
-        `${providerName.charAt(0).toUpperCase() + providerName.slice(1)} account linked successfully!`
-      );
-    } catch (error) {
-      console.error(`Error linking ${providerName} account:`, error);
-      alert(`Failed to link ${providerName} account`);
-    }
-  };
-
-  const unlinkSocialAccount = async (providerName: "facebook" | "google") => {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    try {
-      const providerId =
-        providerName === "facebook" ? "facebook.com" : "google.com";
-
-      await unlink(user, providerId);
-
-      // Update Firestore
-      const userDocRef = doc(db, "users", user.uid);
-      await updateDoc(userDocRef, {
-        [`${providerName}LinkedAt`]: null,
-      });
-
-      // Update local state
-      setLinkedAccounts((prev) => ({
-        ...prev,
-        [providerName]: false,
-      }));
-
-      alert(
-        `${providerName.charAt(0).toUpperCase() + providerName.slice(1)} account unlinked successfully!`
-      );
-    } catch (error) {
-      console.error(`Error unlinking ${providerName} account:`, error);
-      alert(`Failed to unlink ${providerName} account`);
-    }
-  };
 
   
   const updateProfile = async () => {
@@ -192,132 +123,211 @@ export default function ProfileComponent() {
   return (
     <SidebarProvider>
       <AppSidebar />
-    <SidebarInset>
-      <Header />
-    <div className="flex-1 p-6 fle ml-24 mt-16 md:ml-0 mx-auto max-w-4xl">
-    {loading ? (
-      <div className="flex-1 p-6 flex justify-center items-center">
-        <div className="w-16 h-16 border-4 border-dashed border-blue-500 animate-spin border-t-transparent rounded-full"></div>
-      </div>
-    ) : (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {/* Profile Overview Card */}
-      <div className="md:col-span-1 bg-white rounded-2xl shadow-lg p-6 text-center  hover:shadow-xl">
-        <div className="relative mx-auto mb-4 w-32 h-32">
-          {profileImage || (userData && userData.profileImage)  ? (
-            <Image
-              width={128}
-              height={128}
-              src={profileImage || userData.profileImage}
-              alt="Profile"
-              className="w-32 h-32 rounded-full object-cover border-4 border-blue-100 shadow-md"
-            />
-          ) : (
-            <div className="bg-blue-100 w-32 h-32 rounded-full flex items-center justify-center">
-              <User size={64} className="text-blue-500" />
-            </div>
-          )}
-          <label className="absolute bottom-0 right-0 bg-blue-500 text-white rounded-full p-2 cursor-pointer hover:bg-blue-600">
-            <Camera size={16} />
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="hidden"
-            />
-          </label>
-        </div>
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">
-          {userData && userData.name}
-        </h1>
-        <p className="text-gray-500 mb-4">{userData && userData.email}</p>
-        <button
-          onClick={() => setIsEditing(!isEditing)}
-          className="w-full bg-blue-50 text-blue-600 py-2 rounded-lg hover:bg-blue-100 transition"
-        >
-          {isEditing ? "Cancel" : "Edit Profile"}
-        </button>
-      </div>
-
-      {/* Edit Profile Card */}
-      <div className="md:col-span-2 bg-white rounded-2xl shadow-lg p-6 space-y-6">
+      <SidebarInset>
+        <Header />
         {isEditing ? (
-          <>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Edit Profile</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
-                <input
-                  type="text"
-                  value={userData.name || ""}
-                  onChange={(e) =>
-                    setUserData({ ...userData, name: e.target.value })
-                  }
-                  className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-200 transition"
-                  placeholder="Enter your name"
+          <div className="flex flex-col mt-12 gap-6 pr-6 pl-6 pt-6 p-0">
+            <div className="flex gap-4">
+              <ChevronLeft onClick={() => setIsEditing(false)} className="w-6 h-6 mt-0.5 cursor-pointer "/>
+              <h2  className="text-xl font-semibold text-gray-800 mb-4">Edit Profile</h2>
+            </div>
+            <div className="flex flex-col w-full justify-between md:flex-row lg:flex-row">
+              <div className="w-full flex md:hidden lg:hidden ">
+                <Image
+                  width={628}
+                  height={328}
+                  src={proimage}
+                  alt="Profile Background"
+                  className="w-full object-cover rounded-lg shadow-md"
                 />
               </div>
-              <button
-                onClick={updateProfile}
-                className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out transform hover:scale-[1.02]"
-              >
-                Save Changes
-              </button>
-            </div>
-          </>
-        ) : (
-          /* Linked Accounts Section */
-          <div>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Linked Accounts</h2>
-            <div className="space-y-4">
-              {[ 
-                { 
-                  provider: "facebook", 
-                  icon: <FaFacebook size={24} className="text-blue-600" />,
-                  name: "Facebook" 
-                },
-                { 
-                  provider: "google", 
-                  icon: <FaGoogle size={24} className="text-red-500" />,
-                  name: "Google" 
-                }
-              ].map(({ provider, icon, name }) => (
-                <div 
-                  key={provider}
-                  className="flex justify-between items-center bg-gray-100 p-4 rounded-lg transition duration-300 hover:bg-gray-200"
-                >
-                  <div className="flex items-center space-x-4">
-                    {icon}
-                    <span className="text-sm  md:text-lg text-gray-700">{name} Account</span>
-                  </div>
-                  {linkedAccounts[provider as 'facebook' | 'google'] ? (
-                    <button
-                      onClick={() => unlinkSocialAccount(provider as 'facebook' | 'google')}
-                      className="flex items-center text-red-600 hover:bg-red-100 p-2 rounded-lg transition"
-                    >
-                      <Link2Off size={20} className="mr-2" />
-                      Unlink
-                    </button>
+              <div className="space-y-4 w-full p-2">
+                <div className="relativ flex-col mb-4 w- space-y-4 h-">
+                  {/* Profile Picture */}
+                  {profileImage || (userData && userData.profileImage) ? (
+                    <Image
+                      width={128}
+                      height={128}
+                      src={profileImage || userData.profileImage}
+                      alt="Profile"
+                      className="w-32 h-32 rounded-full object-cover border- border-blue- shadow-lg"
+                    />
                   ) : (
-                    <button
-                      onClick={() => linkSocialAccount(provider as 'facebook' | 'google')}
-                      className={`
-                        ${provider === 'facebook' ? 'bg-blue-500 hover:bg-blue-600' : 'bg-red-500 hover:bg-red-600'}
-                        text-white px-4 py-2 rounded-lg transition duration-300 ease-in-out transform hover:scale-[1.05]
-                      `}
-                    >
-                      Link
-                    </button>
+                    <div className="w-32 h-32 bg-blue-100 rounded-full flex items-center justify-center">
+                      <User size={64} className="text-blue-500" />
+                    </div>
                   )}
+                  {/* Edit Profile Picture */}
+                  <label className=" flex gap-4  cursor-pointer text-center ">
+                    <Camera size={16} className=" w-6 h-6 text-gray-600" />
+                    <span className="">Change Profile</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                  </label>
                 </div>
-              ))}
+                <div className="w-full ">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                  <input
+                    type="text"
+                    value={!userData ? "Mr. Alvert Flore" : userData.name}
+                    onChange={(e) =>
+                      setUserData({ ...userData, name: e.target.value })
+                    }
+                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-200 transition"
+                    placeholder="Enter your name"
+                  />
+                </div>
+                <button
+                  onClick={updateProfile}
+                  className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out transform hover:scale-[1.02]"
+                >
+                  Save Changes
+                </button>
+              </div>
+              <div className="w-full hidden md:flex lg:flex">
+                  <Image
+                    width={628}
+                    height={328}
+                    src={iPhone16Pro}
+                    alt="Profile Background"
+                    className="w-full object-cover "
+                  />
+              </div>
             </div>
+            <div className="w-full bottom-0 gap- justify-between flex">
+              <Image
+                width={328}
+                height={228}
+                src={image1}
+                alt="Profile Background"
+                className="w-full h-[100px] lg:h-[220px]"
+                style={{ objectFit: "fill" }}
+              />
+              <Image
+                width={328}
+                height={228}
+                src={Screenshot}
+                alt="Profile Background"
+                className="w-full h-[100px] lg:h-[220px]"
+                style={{ objectFit: "fill" }}
+              />
+              <Image
+                width={328}
+                height={228}
+                src={Tiger}
+                alt="Profile Background"
+                className="w-full h-[100px] lg:h-[220px]"
+                style={{ objectFit: "fill" }}
+              />
+            </div>
+
           </div>
+        ) : (
+          <>
+            {loading ? (
+              <div className="flex-1 p-6 flex justify-center items-center">
+                <div className="w-16 h-16 border-4 border-dashed border-blue-500 animate-spin border-t-transparent rounded-full"></div>
+              </div>
+            ) : (
+              <div className="flex flex-col lg:flex-row items-center mt-12 gap-6 p-6 ">
+                {/* Left Image Section */}
+                <div className="w-full lg:w-1/3">
+                  <Image
+                    width={628}
+                    height={328}
+                    src={proimage}
+                    alt="Profile Background"
+                    className="w-full object-cover rounded-lg shadow-md"
+                  />
+                </div>
+
+                {/* Profile Overview Card */}
+                <div className="w-full lg:w-2/3 rounded-lg mt-2 p-6">
+                  <div className="flex justify-between">
+                    <div className="flex gap-4">
+                      <div className="relative mb-4 w-32 h-32">
+                        {/* Profile Picture */}
+                        {profileImage || (userData && userData.profileImage) ? (
+                          <Image
+                            width={128}
+                            height={128}
+                            src={profileImage || userData.profileImage}
+                            alt="Profile"
+                            className="w-32 h-32 rounded-full object-cover border- border-blue- shadow-lg"
+                          />
+                        ) : (
+                          <div className="w-32 h-32 bg-blue-100 rounded-full flex items-center justify-center">
+                            <User size={64} className="text-blue-500" />
+                          </div>
+                        )}
+                        {/* Edit Profile Picture */}
+                        {/* <label className="absolute bottom-0 right-0 bg-blue-500 text-white rounded-full p-2 cursor-pointer hover:bg-blue-600">
+                          <Camera size={16} />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="hidden"
+                          />
+                        </label> */}
+                      </div>
+                      <div className="flex flex-col justify-center ">
+                        <h1 className="text-2xl font-bold text-gray-800">{userData?.name || "Mr. Alvert Flore"}</h1>
+                        <p className="text-sm text-gray-500">
+                          Joined {userData.createdAt ? userData.createdAt.toDate().toLocaleDateString() : new Date().toLocaleDateString()}
+                        </p>
+
+                      </div>
+                    </div>
+                    <div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Ellipsis />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                          className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                          // side={isMobile ? "bottom" : "right"}
+                          align="end"
+                          sideOffset={4}
+                        >
+                        
+                          <DropdownMenuItem onClick={() => setIsEditing(!isEditing)}>
+                            <Edit2 />
+                            Edit Profile
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </div>
+                  {/* User Info */}
+                  <div className="mt-4">
+                    <div className="mt-4 space-y-2">
+                      {/* Address */}
+                      {/* <div className="flex items-center gap-2">
+                        <MapPin size={16} className="text-blue-500" />
+                        <span className="text-gray-600">4517 Washington Ave, Manchester, Kentucky 39495</span>
+                      </div> */}
+                      {/* Phone */}
+                      {/* <div className="flex items-center gap-2">
+                        <Phone size={16} className="text-blue-500" />
+                        <span className="text-gray-600">+62 124 2123 8925</span>
+                      </div> */}
+                      {/* Email */}
+                      <div className="flex items-center gap-2">
+                        <Mail size={16} className="text-blue-500" />
+                        <span className="text-gray-600">{userData?.email || "alvertflore925@gmail.com"}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
         )}
-      </div>
-    </div>
-        )}
-  </div>
   </SidebarInset>
   </SidebarProvider>
 
