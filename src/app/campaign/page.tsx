@@ -10,7 +10,7 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar"
 import Header from "../../components/header"
-import CampaignForm from "@/components/CampainForm";
+import Campaign from "@/components/Campaign";
 import { Link2Off } from "lucide-react";
 import { FaFacebook, FaGoogle } from "react-icons/fa";
 import {
@@ -198,9 +198,7 @@ function Page() {
                 </div>
               ))}
             </div>
-            <CampaignForm/>
-            {/* <h1 className="text-2xl font-semibold">Campaign Content</h1>
-            <p className="mt-4 text-gray-600">This is the content for Campaign.</p> */}
+            <Campaign />
           </div>
         )}
       </main>
@@ -210,3 +208,7 @@ function Page() {
 }
 
 export default Page;
+
+
+
+
