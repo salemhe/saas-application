@@ -3,7 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth, db } from "../../../firebase";
+import { 
+  auth, 
+  // db 
+} from "../../../firebase";
 import { AppSidebar } from "@/components/app-sidebar"
 import {
   SidebarInset,
@@ -11,22 +14,26 @@ import {
 } from "@/components/ui/sidebar"
 import Header from "../../components/header"
 import Campaign from "@/components/Campaign";
-import { Link2Off } from "lucide-react";
-import { FaFacebook, FaGoogle } from "react-icons/fa";
+// import { Link2Off } from "lucide-react";
+// import { FaFacebook, FaGoogle } from "react-icons/fa";
 import {
   FacebookAuthProvider,
   GoogleAuthProvider,
   linkWithPopup,
   unlink,
 } from "firebase/auth";
-import { doc, updateDoc, getDoc } from "firebase/firestore";
+import { 
+  doc, 
+  updateDoc, 
+  // getDoc
+ } from "firebase/firestore";
 
 function Page() {
   const [authenticated, setAuthenticated] = useState(false);
-  const [linkedAccounts, setLinkedAccounts] = useState({
-    facebook: false,
-    google: false,
-  });
+  // const [linkedAccounts, setLinkedAccounts] = useState({
+  //   facebook: false,
+  //   google: false,
+  // });
   const [loading, setLoading] = useState(true); 
   const router = useRouter();
 
@@ -53,94 +60,94 @@ function Page() {
     }
   }, [authenticated]);
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const user = auth.currentUser;
-      if (!user) return;
+  // useEffect(() => {
+  //   const fetchUserData = async () => {
+  //     const user = auth.currentUser;
+  //     if (!user) return;
   
-      try {
-        // Check linked providers
-        const providerData = user.providerData;
-        setLinkedAccounts({
-          facebook: providerData.some(
-            (provider) => provider.providerId === "facebook.com"
-          ),
-          google: providerData.some(
-            (provider) => provider.providerId === "google.com"
-          ),
-        });
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    };
+  //     try {
+  //       // Check linked providers
+  //       const providerData = user.providerData;
+  //       setLinkedAccounts({
+  //         facebook: providerData.some(
+  //           (provider) => provider.providerId === "facebook.com"
+  //         ),
+  //         google: providerData.some(
+  //           (provider) => provider.providerId === "google.com"
+  //         ),
+  //       });
+  //     } catch (error) {
+  //       console.error("Error fetching user data:", error);
+  //     }
+  //   };
   
-    fetchUserData();
-  }, []);
+  //   fetchUserData();
+  // }, []);
   
 
-  const linkSocialAccount = async (providerName: "facebook" | "google") => {
-    const user = auth.currentUser;
-    if (!user) return;
+  // const linkSocialAccount = async (providerName: "facebook" | "google") => {
+  //   const user = auth.currentUser;
+  //   if (!user) return;
 
-    try {
-      const provider =
-        providerName === "facebook"
-          ? new FacebookAuthProvider()
-          : new GoogleAuthProvider();
+  //   try {
+  //     const provider =
+  //       providerName === "facebook"
+  //         ? new FacebookAuthProvider()
+  //         : new GoogleAuthProvider();
 
-      await linkWithPopup(user, provider);
+  //     await linkWithPopup(user, provider);
 
-      // Update Firestore with additional account info
-      const userDocRef = doc(db, "users", user.uid);
-      await updateDoc(userDocRef, {
-        [`${providerName}LinkedAt`]: new Date(),
-      });
+  //     // Update Firestore with additional account info
+  //     const userDocRef = doc(db, "users", user.uid);
+  //     await updateDoc(userDocRef, {
+  //       [`${providerName}LinkedAt`]: new Date(),
+  //     });
 
-      // Update local state
-      setLinkedAccounts((prev) => ({
-        ...prev,
-        [providerName]: true,
-      }));
+  //     // Update local state
+  //     setLinkedAccounts((prev) => ({
+  //       ...prev,
+  //       [providerName]: true,
+  //     }));
 
-      alert(
-        `${providerName.charAt(0).toUpperCase() + providerName.slice(1)} account linked successfully!`
-      );
-    } catch (error) {
-      console.error(`Error linking ${providerName} account:`, error);
-      alert(`Failed to link ${providerName} account`);
-    }
-  };
+  //     alert(
+  //       `${providerName.charAt(0).toUpperCase() + providerName.slice(1)} account linked successfully!`
+  //     );
+  //   } catch (error) {
+  //     console.error(`Error linking ${providerName} account:`, error);
+  //     alert(`Failed to link ${providerName} account`);
+  //   }
+  // };
 
-  const unlinkSocialAccount = async (providerName: "facebook" | "google") => {
-    const user = auth.currentUser;
-    if (!user) return;
+  // const unlinkSocialAccount = async (providerName: "facebook" | "google") => {
+  //   const user = auth.currentUser;
+  //   if (!user) return;
 
-    try {
-      const providerId =
-        providerName === "facebook" ? "facebook.com" : "google.com";
+  //   try {
+  //     const providerId =
+  //       providerName === "facebook" ? "facebook.com" : "google.com";
 
-      await unlink(user, providerId);
+  //     await unlink(user, providerId);
 
-      // Update Firestore
-      const userDocRef = doc(db, "users", user.uid);
-      await updateDoc(userDocRef, {
-        [`${providerName}LinkedAt`]: null,
-      });
+  //     // Update Firestore
+  //     const userDocRef = doc(db, "users", user.uid);
+  //     await updateDoc(userDocRef, {
+  //       [`${providerName}LinkedAt`]: null,
+  //     });
 
-      // Update local state
-      setLinkedAccounts((prev) => ({
-        ...prev,
-        [providerName]: false,
-      }));
+  //     // Update local state
+  //     setLinkedAccounts((prev) => ({
+  //       ...prev,
+  //       [providerName]: false,
+  //     }));
 
-      alert(
-        `${providerName.charAt(0).toUpperCase() + providerName.slice(1)} account unlinked successfully!`
-      );
-    } catch (error) {
-      console.error(`Error unlinking ${providerName} account:`, error);
-      alert(`Failed to unlink ${providerName} account`);
-    }
-  };
+  //     alert(
+  //       `${providerName.charAt(0).toUpperCase() + providerName.slice(1)} account unlinked successfully!`
+  //     );
+  //   } catch (error) {
+  //     console.error(`Error unlinking ${providerName} account:`, error);
+  //     alert(`Failed to unlink ${providerName} account`);
+  //   }
+  // };
 
   return (
     <SidebarProvider>
@@ -153,8 +160,8 @@ function Page() {
             <div className="w-16 h-16 border-4 border-dashed border-blue-500 animate-spin border-t-transparent rounded-full"></div>
           </div>
         ) : (
-          <div className="max-w-4xl w-full mx-auto mt-12 p-12 flex-1">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Linked Accounts</h2>
+          <div className="">
+            {/* <h2 className="text-2xl font-semibold text-gray-800 mb-4">Linked Accounts</h2>
             <div className="space-y-4">
               {[ 
                 { 
@@ -197,7 +204,7 @@ function Page() {
                   )}
                 </div>
               ))}
-            </div>
+            </div> */}
             <Campaign />
           </div>
         )}
