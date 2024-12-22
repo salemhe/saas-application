@@ -5,6 +5,7 @@ import { CardDescription } from "./ui/card";
 import { FaInstagram, FaFacebook, FaYoutube } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { PieChart, Paintbrush, Megaphone, LineChart } from "lucide-react";
+import Link from "next/link";
 
 const AdsRunningSection = () => {
   return (
@@ -64,18 +65,18 @@ const AdsRunningSection = () => {
 
         {/* Social Media Icons */}
         <div className="flex mt-6 gap-8">
-          <a href="/" className="text-[#E4405F]" aria-label="Instagram">
+          <Link href="/" className="text-[#E4405F]" aria-label="Instagram">
             <FaInstagram size={24} />
-          </a>
-          <a href="/" className="text-[#1877F2]" aria-label="Facebook">
+          </Link>
+          <Link href="/" className="text-[#1877F2]" aria-label="Facebook">
             <FaFacebook size={24} />
-          </a>
-          <a href="/" className="text-[#FF0000]" aria-label="YouTube">
+          </Link>
+          <Link href="/" className="text-[#FF0000]" aria-label="YouTube">
             <FaYoutube size={24} />
-          </a>
-          <a href="/" className="text-black" aria-label="X">
+          </Link>
+          <Link href="/" className="text-black" aria-label="X">
             <FaXTwitter size={24} />
-          </a>
+          </Link>
         </div>
 
         {/* Description */}
