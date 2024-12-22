@@ -1,55 +1,25 @@
-"use client";
+import { AppSidebar } from "@/components/app-sidebar"
+import {
+  SidebarInset,
+  SidebarProvider,
+} from "@/components/ui/sidebar"
+import Header from "../../components/header"
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../../../firebase";
-import Sidebar from "@/components/Sidebar";
-
-function Page() {
-  const [authenticated, setAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true); // Track loading state
-  const router = useRouter();
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setAuthenticated(true); // User is logged in
-      } else {
-        setAuthenticated(false); // User is not logged in
-        router.push("/auth?mode=login"); 
-      }
-    });
-
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
-  }, [router]);
-
-  //loader timeout for 3 seconds before content renders
-  useEffect(() => {
-    if (authenticated) {
-      setTimeout(() => {
-        setLoading(false);  
-      }, 2000);
-    }
-  }, [authenticated]);
-
+export default function Page() {
   return (
-    <div className="flex h-screen">
-      <Sidebar />
-      <main className="flex-1 p-6 flex justify-center items-center">
-        {loading ? (
-          <div className="w-16 h-16 border-4 border-dashed border-blue-500 animate-spin border-t-transparent rounded-full"></div>
-        ) : (
-  
-          <div className="max-w-4xl w-full mx-auto text-center">
-            <h1 className="text-2xl font-semibold">Dashboard Content</h1>
-            <p className="mt-4 text-gray-600">This is the content for Dashboard.</p>
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <Header />
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+          <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+            <div className="aspect-video rounded-xl bg-muted/50" />
+            <div className="aspect-video rounded-xl bg-muted/50" />
+            <div className="aspect-video rounded-xl bg-muted/50" />
           </div>
-        )}
-      </main>
-    </div>
-  );
+          <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
+  )
 }
-
-export default Page;

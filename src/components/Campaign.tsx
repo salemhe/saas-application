@@ -1,57 +1,60 @@
+import { Card } from "./ui/card";
+import { CardContent } from "./ui/card";
+import { CardTitle } from "./ui/card";
+import { CardDescription } from "./ui/card";
+import { FaInstagram, FaFacebook, FaYoutube } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 import { PieChart, Paintbrush, Megaphone, LineChart } from "lucide-react";
-import { FaFacebook, FaInstagram, FaTwitterSquare, FaYoutube } from "react-icons/fa";
 
 const AdsRunningSection = () => {
   return (
-    <div className="p-4 md:p-16 sm:p-8 ">
+    <div className="p-4 md:p-16 sm:p-4">
       <div className="mb-12 flex flex-col md:flex-row justify-between items-center gap-6">
         {/* Text Section */}
         <div className="md:w-1/2 text-left mt-6">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-3">Ads Running Section</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-3">Boost Your Ad Campaigns</h1>
           <p className="text-gray-600 text-sm md:text-base max-w-lg">
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Repellat, quas? Lorem ipsum dolor sit amet.
+            From understanding your audience to tracking success, our tools and platforms ensure your campaigns are impactful.
           </p>
         </div>
 
         {/* Grid Section */}
-        <div 
-          className="mt-6 grid grid-cols-1 sm:grid-cols-2  md:grid-cols-2 gap-4 md:w-1/2"
-          >
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 md:w-1/2">
           {/* Analyze */}
-          <div className="p-4 bg-[#EDF2FF] rounded-lg text-center shadow-sm hover:shadow-lg h-36 md:h-32 transition-all duration-200">
-            <div className="text-[#5A67D8] text-3xl mb-2">
-              <PieChart />
-            </div>
-            <h3 className="font-semibold text-gray-800">Analyze</h3>
-            <p className="text-sm text-gray-600">Understand your audience better.</p>
-          </div>
+          <Card className="bg-white bg-opacity-70 backdrop-blur-md h-34 hover:shadow-lg transition-all duration-200">
+            <CardContent className="flex flex-col items-center text-center p-3">
+              <PieChart className="text-[#5A67D8] w-5 h-5 mb-1" />
+              <CardTitle className="text-gray-800 text-sm">Analyze</CardTitle>
+              <CardDescription className="text-gray-600 text-xs">Understand your audience better.</CardDescription>
+            </CardContent>
+          </Card>
 
           {/* Design */}
-          <div className="p-4 bg-[#E6FFFA] rounded-lg text-center shadow-sm hover:shadow-lg h-36 md:h-28 transition-all duration-200">
-            <div className="text-[#319795] text-3xl mb-2">
-              <Paintbrush />
-            </div>
-            <h3 className="font-semibold text-gray-800">Design</h3>
-            <p className="text-sm text-gray-600">Create stunning visuals easily.</p>
-          </div>
+          <Card className="bg-white bg-opacity-70 backdrop-blur-md h-34 hover:shadow-lg transition-all duration-200">
+            <CardContent className="flex flex-col items-center text-center p-3">
+              <Paintbrush className="text-[#319795] w-5 h-5 mb-1" />
+              <CardTitle className="text-gray-800 text-sm">Design</CardTitle>
+              <CardDescription className="text-gray-600 text-xs">Create stunning visuals easily.</CardDescription>
+            </CardContent>
+          </Card>
 
           {/* Launch */}
-          <div className="p-4 bg-[#FFF5EB] rounded-lg text-center shadow-sm hover:shadow-lg h-36 md:h-28 transition-all duration-200">
-            <div className="text-[#D69E2E] text-3xl mb-2">
-              <Megaphone />
-            </div>
-            <h3 className="font-semibold text-gray-800">Launch</h3>
-            <p className="text-sm text-gray-600">Deploy your ads effectively.</p>
-          </div>
+          <Card className="bg-white bg-opacity-70 backdrop-blur-md h-34 hover:shadow-lg transition-all duration-200">
+            <CardContent className="flex flex-col items-center text-center p-3">
+              <Megaphone className="text-[#D69E2E] w-5 h-5 mb-1" />
+              <CardTitle className="text-gray-800 text-sm">Launch</CardTitle>
+              <CardDescription className="text-gray-600 text-xs">Deploy your ads effectively.</CardDescription>
+            </CardContent>
+          </Card>
 
           {/* Measure */}
-          <div className="p-4 bg-[#FFE4E6] rounded-lg text-center shadow-sm hover:shadow-lg h-36 md:h-32 transition-all duration-200">
-            <div className="text-[#E53E3E] text-3xl mb-2">
-              <LineChart />
-            </div>
-            <h3 className="font-semibold text-gray-800">Measure</h3>
-            <p className="text-sm text-gray-600">Track your campaign's success.</p>
-          </div>
+          <Card className="bg-white bg-opacity-70 backdrop-blur-md h-34 hover:shadow-lg transition-all duration-200">
+            <CardContent className="flex flex-col items-center text-center p-3">
+              <LineChart className="text-[#E53E3E] w-5 h-5 mb-1" />
+              <CardTitle className="text-gray-800 text-sm">Measure</CardTitle>
+              <CardDescription className="text-gray-600 text-xs">Track your campaign's success.</CardDescription>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
@@ -62,16 +65,16 @@ const AdsRunningSection = () => {
         {/* Social Media Icons */}
         <div className="flex mt-6 gap-8">
           <a href="/" className="text-[#E4405F]" aria-label="Instagram">
-            <FaInstagram size={30} />
+            <FaInstagram size={24} />
           </a>
           <a href="/" className="text-[#1877F2]" aria-label="Facebook">
-            <FaFacebook size={30} />
+            <FaFacebook size={24} />
           </a>
           <a href="/" className="text-[#FF0000]" aria-label="YouTube">
-            <FaYoutube size={30} />
+            <FaYoutube size={24} />
           </a>
-          <a href="/" className="text-[#1DA1F2]" aria-label="Twitter">
-            <FaTwitterSquare size={30} />
+          <a href="/" className="text-black" aria-label="X">
+            <FaXTwitter size={24} />
           </a>
         </div>
 
@@ -88,9 +91,4 @@ const AdsRunningSection = () => {
 };
 
 export default AdsRunningSection;
-
-
-
-
-
 

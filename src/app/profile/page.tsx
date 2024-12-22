@@ -27,5 +27,5 @@ export default function ProfilePage() {
       return null; // Avoid rendering the component until redirection completes
     }
 
-  return <ProfileComponent />;
+  return  <ProfileComponent />;
 }

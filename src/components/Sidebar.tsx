@@ -3,16 +3,16 @@
 import { useState, useEffect, createContext, useContext } from "react";
 import Image from "next/image";
 import {
-  Home,
+  // Home,
   LayoutDashboard,
   StickyNote,
-  Search,
+  // Search,
   Sparkles,
   SmartphoneNfc,
   ChevronLeft,
   ChevronRight,
-  MoreVertical,
-  PlusCircle,
+  // MoreVertical,
+  // PlusCircle,
   LogOut,
   Settings,
   Menu,
@@ -24,18 +24,19 @@ import { getDoc, doc } from "firebase/firestore";
 import { auth, db } from "../../firebase";
 import { signOut } from "firebase/auth";
 import { usePathname, useRouter } from "next/navigation";
+import { FaMoneyBill } from "react-icons/fa";
 
 const SidebarContext = createContext<{ expanded: boolean } | undefined>(undefined);
 
 const menuItems = [
-  { icon: <Home size={20} />, text: "Home", href: "/", alert: true },
+  // { icon: <Home size={20} />, text: "Home", href: "/", alert: true },
   { icon: <LayoutDashboard size={20} />, text: "Dashboard", href: "/dashboard" },
-  { icon: <StickyNote size={20} />, text: "Projects", href: "/projects", alert: true },
-  { icon: <Search size={20} />, text: "Billboard", href: "/billboard" },
-  { icon: <Sparkles size={20} />, text: "AI-Generator", href: "/ai-generator" },
-  { icon: <SmartphoneNfc size={20} />, text: "Campaign", href: "/campaign" },
-  { icon: <Settings size={20} />, text: "Settings", href: "/settings" },
-  { icon: <PlusCircle size={20} />, text: "Upgrade", href: "/upgrade" },
+  { icon: <StickyNote size={20} />, text: "Analytics", href: "/analytics", alert: true },
+  { icon: <Sparkles size={20} />, text: "Ad Content Generator", href: "/ai-generator" },
+  { icon: <SmartphoneNfc size={20} />, text: "Ad Running Section", href: "/campaign" },
+  { icon: <FaMoneyBill size={20} />, text: "Billboard", href: "/billboard" },
+  { icon: <Settings size={20} />, text: "My Profile", href: "/profile" },
+  // { icon: <PlusCircle size={20} />, text: "Upgrade", href: "/upgrade" },
 ];
 
 const Sidebar = () => {
@@ -74,7 +75,7 @@ const Sidebar = () => {
     return () => unsubscribe();
   }, []);
 
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  // const [dropdownOpen, setDropdownOpen] = useState(false);
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -89,7 +90,7 @@ const Sidebar = () => {
   return (
     <SidebarContext.Provider value={{ expanded }}>
        {/* Mobile Top Bar */}
-       <div className="md:hidde flex items-center justify-between md:justify-end md:items-end w-screen fixed z-10 p-4 bg-white  shadow-md">
+       <div className="md:hidde flex items-center justify-between md:justify-end md:items-end w-screen fixed z-10 py-3 px-5 bg-white  shadow-md">
         <div className="hidden md:flex  justify-self-end">
         {loading ? (
           <div className="cursor-pointer border-b p-3 flex items-center justify-between hover:bg-gray-100 transition-colors mb-4">
@@ -115,21 +116,21 @@ const Sidebar = () => {
                 </span>
               </div>
             )}
-            {expanded && (
+            {/* {expanded && (
               <div className="ml-3">
                 <h4 className="font-semibold">{userData.name || "User Name"}</h4>
                 <p className="text-xs text-gray-600">{userData.email}</p>
               </div>
-            )}
-            <div className="ml-auto relative">
-              <button
+            )} */}
+            {/* <div className="ml-auto relative"> */}
+              {/* <button
                 onClick={() => setDropdownOpen((prev) => !prev)}
                 className="p-2 rounded-full hover:bg-gray-200"
                 aria-label="Open dropdown"
               >
                 <MoreVertical size={20} />
-              </button>
-              {dropdownOpen && (
+              </button> */}
+              {/* {dropdownOpen && (
                 <div className="absolute left-0 -mt-10 ml-6 bg-white border rounded-md shadow-md z-10 w-max">
                   <button
                     onClick={handleLogout}
@@ -139,8 +140,8 @@ const Sidebar = () => {
                     Logout
                   </button>
                 </div>
-              )}
-            </div>
+              )} */}
+            {/* </div> */}
           </div>
         ) : (
           <p>No user data available.</p>
@@ -184,7 +185,7 @@ const Sidebar = () => {
 
         {/* Mobile Sidebar Content (similar to desktop sidebar) */}
         {/* Profile Section */}
-        {loading ? (
+        {/* {loading ? (
           <div className="cursor-pointer border-b p-3 flex items-center justify-between hover:bg-gray-100 transition-colors mb-4">
             <p>Loading user data...</p>
           </div>
@@ -237,10 +238,10 @@ const Sidebar = () => {
           </div>
         ) : (
           <p>No user data available.</p>
-        )}
+        )} */}
 
         {/* Mobile Sidebar Menu */}
-        <nav className="px-4 space-y-2">
+        <nav className="px-4 space-y-2 mt-4">
           {menuItems.map((item) => (
             <Link 
               key={item.text} 
@@ -262,14 +263,18 @@ const Sidebar = () => {
             </Link>
           ))}
           
+          
+        </nav>
+        <div className="px-4 mb-3 mt-12">
           <button
             onClick={handleLogout}
-            className="flex items-center px-4 py-2 text-sm text-red-500 hover:bg-gray-200 w-full"
+            className="flex items-center px-3 py-2 text-sm text-red-500 hover:bg-gray-200 w-full  rounded-md cursor-pointer group transition-colors"
           >
-            <LogOut size={16} className="mr-2" />
+            <LogOut size={20} className="mr-2" />
+            {/* {expanded && "Logout"} */}
             Logout
           </button>
-        </nav>
+        </div>
       </aside>
       {/* desktop */}
       <aside
@@ -298,6 +303,16 @@ const Sidebar = () => {
             <SidebarItem key={item.text} {...item} />
           ))}
         </nav>
+
+        <div className="px-4 mb-3">
+          <button
+            onClick={handleLogout}
+            className="flex items-center px-3 py-2 text-sm text-red-500 hover:bg-gray-200 w-full  rounded-md cursor-pointer group transition-colors"
+          >
+            <LogOut size={20} className="mr-2" />
+            {expanded && "Logout"}
+          </button>
+        </div>
       </aside>
     </SidebarContext.Provider>
   );

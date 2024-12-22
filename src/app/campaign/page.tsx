@@ -4,7 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../../firebase";
-import Sidebar from "@/components/Sidebar";
+import { AppSidebar } from "@/components/app-sidebar"
+import {
+  SidebarInset,
+  SidebarProvider,
+} from "@/components/ui/sidebar"
+import Header from "../../components/header"
 import Campaign from "@/components/Campaign";
 
 function Page() {
@@ -30,27 +35,34 @@ function Page() {
   useEffect(() => {
     if (authenticated) {
       setTimeout(() => {
-        setLoading(false); // Hide loader after 3 seconds
+        setLoading(false);  // Hide loader after 3 seconds
       }, 2000);
     }
   }, [authenticated]);
 
   return (
-    <div className="flex h-screen">
-      <Sidebar />
+    <SidebarProvider>
+    <AppSidebar />
+    <SidebarInset>
+      <Header />
       <main className="flex-1">
         {loading ? (
-          <div className="flex h-full justify-center items-center">
+          <div className="flex-1 p-6 flex justify-center items-center">
             <div className="w-16 h-16 border-4 border-dashed border-blue-500 animate-spin border-t-transparent rounded-full"></div>
           </div>
         ) : (
-          <div className="max-w-6xl mx-auto p-8">
+          <div className="max-w-4xl w-full mx-auto mt-12 p-12 flex-1">
             <Campaign />
           </div>
         )}
       </main>
-    </div>
+    </SidebarInset>
+    </SidebarProvider>
   );
 }
 
 export default Page;
+
+
+
+

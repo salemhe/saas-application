@@ -4,7 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../../firebase";
-import Sidebar from "@/components/Sidebar"
+import { AppSidebar } from "@/components/app-sidebar"
+import {
+  SidebarInset,
+  SidebarProvider,
+} from "@/components/ui/sidebar"
+import Header from "../../components/header"
 import Chatbot from "@/components/Chatbot"
 
 
@@ -35,17 +40,15 @@ function Page() {
     return null; // Avoid rendering the component until redirection completes
   }
   return (
-    <div className="flex md:flex lg:flex h-screen">
-      <Sidebar />
-      <main className="flex-1 p-6 flex justify-center items-center">
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <Header />
         <div className="max-w-[900px] w-full mx-auto text-center">
-          {/* Billboard Content goes here */}
           <Chatbot />
-          {/* <h1 className="text-2xl font-semibold">AI-Generator Content</h1>
-          <p className="mt-4 text-gray-600">This is the content for ai-generator.</p> */}
         </div>
-      </main>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   )
 }
 
