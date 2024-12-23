@@ -5,11 +5,19 @@ import { CardDescription } from "./ui/card";
 import { FaInstagram, FaFacebook, FaYoutube } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { PieChart, Paintbrush, Megaphone, LineChart } from "lucide-react";
+import Image1 from "@/assets/Tiger.png";
+import Image2 from "@/assets/Screenshot.png";
+import Image3 from "@/assets/image1.png";
+import Image from "next/image";
 import Link from "next/link";
 
 const AdsRunningSection = () => {
+
+  const images = [Image1, Image2, Image3];
+
+
   return (
-    <div className="p-4 md:p-16 sm:p-4">
+    <div className="p-4 md:p-16 sm:p-4 sm:mt-10">
       <div className="mb-12 flex flex-col md:flex-row justify-between items-center gap-6">
         {/* Text Section */}
         <div className="md:w-1/2 text-left mt-6">
@@ -87,9 +95,30 @@ const AdsRunningSection = () => {
           <span className="text-purple-600 underline font-semibold">Radio</span>
         </p>
       </div>
+
+
+      {/* Grid for Images */}
+      <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+         {images.map((image, index) => (
+          <div
+             key={index}
+            className={`rounded-lg overflow-hidden shadow-sm ${
+               index >= 2 && "lg:block hidden" // Show third image only on large screens
+             }`}
+           >
+             <Image
+               src={image}
+               alt={`Ad Campaign ${index + 1}`}
+              className="w-full h-56 object-cover"
+            />
+           </div>
+         ))}
+      </div>
     </div>
   );
 };
 
 export default AdsRunningSection;
+
+
 
