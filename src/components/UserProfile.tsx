@@ -126,7 +126,7 @@ export default function ProfileComponent() {
       <SidebarInset>
         <Header />
         {isEditing ? (
-          <div className="flex flex-col mt-12 gap-6 pr-6 pl-6 pt-6 p-0">
+          <div className="flex flex-col mt-12 lg:gap-6 gap-[74px] pr-6 pl-6 pt-6 p-0">
             <div className="flex gap-4">
               <ChevronLeft onClick={() => setIsEditing(false)} className="w-6 h-6 mt-0.5 cursor-pointer "/>
               <h2  className="text-xl font-semibold text-gray-800 mb-4">Edit Profile</h2>
@@ -204,7 +204,7 @@ export default function ProfileComponent() {
                 height={228}
                 src={image1}
                 alt="Profile Background"
-                className="w-full h-[100px] lg:h-[220px]"
+                className="w-full h-16 lg:h-[220px]"
                 style={{ objectFit: "fill" }}
               />
               <Image
@@ -212,7 +212,7 @@ export default function ProfileComponent() {
                 height={228}
                 src={Screenshot}
                 alt="Profile Background"
-                className="w-full h-[100px] lg:h-[220px]"
+                className="w-full h-16 lg:h-[220px]"
                 style={{ objectFit: "fill" }}
               />
               <Image
@@ -220,7 +220,7 @@ export default function ProfileComponent() {
                 height={228}
                 src={Tiger}
                 alt="Profile Background"
-                className="w-full h-[100px] lg:h-[220px]"
+                className="w-full h-16 lg:h-[220px]"
                 style={{ objectFit: "fill" }}
               />
             </div>
