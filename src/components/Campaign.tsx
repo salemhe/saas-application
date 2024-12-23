@@ -53,7 +53,7 @@ const AdsRunningSection = () => {
             <CardContent className="flex flex-col items-center text-center p-3">
               <LineChart className="text-[#E53E3E] w-5 h-5 mb-1" />
               <CardTitle className="text-gray-800 text-sm">Measure</CardTitle>
-              <CardDescription className="text-gray-600 text-xs">Track your campaign's success.</CardDescription>
+              <CardDescription className="text-gray-600 text-xs">Track your campaign{"'"}s success.</CardDescription>
             </CardContent>
           </Card>
         </div>

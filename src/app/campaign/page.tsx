@@ -16,17 +16,17 @@ import Header from "../../components/header"
 import Campaign from "@/components/Campaign";
 // import { Link2Off } from "lucide-react";
 // import { FaFacebook, FaGoogle } from "react-icons/fa";
-import {
-  FacebookAuthProvider,
-  GoogleAuthProvider,
-  linkWithPopup,
-  unlink,
-} from "firebase/auth";
-import { 
-  doc, 
-  updateDoc, 
-  // getDoc
- } from "firebase/firestore";
+// import {
+//   FacebookAuthProvider,
+//   GoogleAuthProvider,
+//   linkWithPopup,
+//   unlink,
+// } from "firebase/auth";
+// import { 
+//   doc, 
+//   updateDoc, 
+//   // getDoc
+//  } from "firebase/firestore";
 
 function Page() {
   const [authenticated, setAuthenticated] = useState(false);

@@ -17,7 +17,7 @@ import iPhone16Pro from "@/assets/iPhone16Pro.png"
 import { doc, updateDoc, getDoc } from "firebase/firestore";
 import Image from "next/image";
 
-import { User, Camera, MapPin, Phone, Mail, Ellipsis, Edit2, ChevronLeft } from "lucide-react";
+import { User, Camera,  Mail, Ellipsis, Edit2, ChevronLeft } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
