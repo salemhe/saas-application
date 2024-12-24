@@ -232,14 +232,14 @@ import Campaign from "@/components/Campaign";
 // import { Link2Off } from "lucide-react";
 // import { FaFacebook, FaGoogle } from "react-icons/fa";
 
-import {
-  FacebookAuthProvider,
-  GoogleAuthProvider,
-  linkWithPopup,
-  unlink,
-} from "firebase/auth";
-import { doc, updateDoc } from "firebase/firestore";
-import { LinkCampaign } from "@/components/LinkCampaign";
+// import {
+//   FacebookAuthProvider,
+//   GoogleAuthProvider,
+//   linkWithPopup,
+//   unlink,
+// } from "firebase/auth";
+// import { doc, updateDoc } from "firebase/firestore";
+// import { LinkCampaign } from "@/components/LinkCampaign";
 // import {
 //   FacebookAuthProvider,
 //   GoogleAuthProvider,
