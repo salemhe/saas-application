@@ -199,7 +199,7 @@ export default function Review() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {Object.entries(formData[formData.platform]).map(
+              {formData[formData.platform] && Object.entries(formData[formData.platform] || {}).map(
                 ([key, value]) => (
                   <p key={key}>
                     <strong>
