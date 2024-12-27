@@ -1,13 +1,9 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed' });
-  }
-
+export async function POST(req: NextRequest) {
   try {
-    const { token, adAccountId } = req.body;
+    const { token, adAccountId } = await req.json();
 
     // Example: Fetch ad account details from Facebook
     const response = await axios.get(
@@ -18,9 +14,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     );
     console.log(response.data);
 
-    return res.status(200).json(response.data);
+    return NextResponse.json(response.data, { status: 200 });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: 'Error connecting to ad account' });
+    return NextResponse.json({ message: 'Error connecting to ad account' }, { status: 500 });
   }
 }
+
