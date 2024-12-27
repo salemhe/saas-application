@@ -4,7 +4,7 @@ import { CardTitle } from "./ui/card";
 import { CardDescription } from "./ui/card";
 import { FaInstagram, FaFacebook, FaYoutube } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
-import { PieChart, Paintbrush, Megaphone, LineChart } from "lucide-react";
+import { PieChart, Paintbrush, Megaphone, LineChart, Plus } from "lucide-react";
 import Image1 from "@/assets/Tiger.png";
 import Image2 from "@/assets/Screenshot.png";
 import Image3 from "@/assets/image1.png";
@@ -17,7 +17,7 @@ const AdsRunningSection = () => {
 
 
   return (
-    <div className="p-4 md:p-16 sm:p-4 sm:mt-10">
+    <div className="p-4 md:p-16 sm:p-4 sm:mt-10 mt-8">
       <div className="mb-12 flex flex-col md:flex-row justify-between items-center gap-6">
         {/* Text Section */}
         <div className="md:w-1/2 text-left mt-6">
@@ -25,6 +25,10 @@ const AdsRunningSection = () => {
           <p className="text-gray-600 text-sm md:text-base max-w-lg">
             From understanding your audience to tracking success, our tools and platforms ensure your campaigns are impactful.
           </p>
+          <Link href="/campaign/create" className="mt-6 flex items-center text-white bg-primary py-3 px-5 rounded-lg hover:opacity-95 transition-all duration-200 w-max">
+            <Plus className="w-4 h-4 mr-2" size={24} />
+            Create Campaign
+          </Link>
         </div>
 
         {/* Grid Section */}
