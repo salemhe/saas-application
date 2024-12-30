@@ -1,39 +1,47 @@
-// pages/api/revoke-facebook-token.ts
-import type { NextApiRequest, NextApiResponse } from 'next';
+// app/api/revoke-facebook-token/route.ts
+import { NextResponse } from 'next/server';
+import { headers } from 'next/headers';
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  // Get the origin from the request headers
-  const origin = req.headers.origin;
-  
-  // Set CORS headers - only allow your ngrok URLs
+// Helper function to handle CORS
+async function corsResponse(response: NextResponse) {
+  // Get the request headers
+  const headersList = headers();
+  const origin = (await headersList).get('origin');
+
+  // Only set CORS headers if origin exists
   if (origin) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-    res.setHeader(
+    response.headers.set('Access-Control-Allow-Origin', origin);
+    response.headers.set('Access-Control-Allow-Credentials', 'true');
+    response.headers.set('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+    response.headers.set(
       'Access-Control-Allow-Headers',
       'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
     );
   }
 
-  // Handle preflight request
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
-  }
+  return response;
+}
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: `Method ${req.method} not allowed` });
-  }
+// Handle OPTIONS requests for CORS preflight
+export async function OPTIONS() {
+  return corsResponse(
+    new NextResponse(null, {
+      status: 200,
+    })
+  );
+}
 
+export async function POST(request: Request) {
   try {
-    const { accessToken } = req.body;
+    const { accessToken } = await request.json();
 
     if (!accessToken) {
-      return res.status(400).json({ message: 'Access token is required' });
+      return corsResponse(
+        NextResponse.json(
+          { message: 'Access token is required' },
+          { status: 400 }
+        )
+      );
     }
 
     const graphApiUrl = `https://graph.facebook.com/v18.0/me/permissions`;
@@ -48,17 +56,23 @@ export default async function handler(
       throw new Error(jsonData.error?.message || `Failed to revoke token: ${response.status}`);
     }
 
-    return res.status(200).json({ 
-      success: true,
-      message: 'Token successfully revoked',
-      data: jsonData 
-    });
+    return corsResponse(
+      NextResponse.json({ 
+        success: true,
+        message: 'Token successfully revoked',
+        data: jsonData 
+      })
+    );
 
   } catch (error: any) {
     console.error('Error revoking token:', error);
-    return res.status(500).json({ 
-      success: false,
-      message: error.message || 'Failed to revoke token'
-    });
+    return corsResponse(
+      NextResponse.json({ 
+        success: false,
+        message: error.message || 'Failed to revoke token'
+      }, { 
+        status: 500 
+      })
+    );
   }
 }
