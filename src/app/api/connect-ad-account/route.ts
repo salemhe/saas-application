@@ -1,23 +1,36 @@
-import { NextRequest, NextResponse } from 'next/server';
-import axios from 'axios';
+// pages/api/connect-ad-account.ts
+import type { NextApiRequest, NextApiResponse } from 'next';
 
-export async function POST(req: NextRequest) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Only allow POST method
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Method not allowed' });
+  }
+
   try {
-    const { token, adAccountId } = await req.json();
+    const { token, adAccountId, userId } = req.body;
+    const facebookUrl = `https://graph.facebook.com/v18.0/${adAccountId}/insights?access_token=${token}`;
+    // Validate required fields
+    if (!token || !userId) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
 
-    // Example: Fetch ad account details from Facebook
-    const response = await axios.get(
-      `https://graph.facebook.com/v15.0/${adAccountId}`,
-      {
-        params: { access_token: token },
-      }
-    );
-    console.log(response.data);
+    // Your logic to handle the Facebook ad account connection
+    // ...
+    const response = await fetch(facebookUrl);
+    const data = await response.json();
 
-    return NextResponse.json(response.data, { status: 200 });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ message: 'Error connecting to ad account' }, { status: 500 });
+    // Return success response
+    return res.status(200).json({ 
+      data,
+      success: true,
+      message: 'Ad account connected successfully'
+    });
+
+  } catch (error: any) {
+    console.error('API Error:', error);
+    return res.status(500).json({ 
+      message: error.message || 'Internal server error'
+    });
   }
 }
-

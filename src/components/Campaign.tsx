@@ -5,15 +5,15 @@ import { CardDescription } from "./ui/card";
 import { FaInstagram, FaFacebook, FaYoutube } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { PieChart, Paintbrush, Megaphone, LineChart } from "lucide-react";
-import Image1 from "@/assets/Tiger.png";
-import Image2 from "@/assets/Screenshot.png";
-import Image3 from "@/assets/image1.png";
-import Image from "next/image";
+// import Image1 from "@/assets/Tiger.png";
+// import Image2 from "@/assets/Screenshot.png";
+// import Image3 from "@/assets/image1.png";
+// import Image from "next/image";
 import Link from "next/link";
 
 const AdsRunningSection = () => {
 
-  const images = [Image1, Image2, Image3];
+  // const images = [Image1, Image2, Image3];
 
 
   return (
@@ -98,7 +98,7 @@ const AdsRunningSection = () => {
 
 
       {/* Grid for Images */}
-      <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
          {images.map((image, index) => (
           <div
              key={index}
@@ -113,7 +113,7 @@ const AdsRunningSection = () => {
             />
            </div>
          ))}
-      </div>
+      </div> */}
     </div>
   );
 };

@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/sidebar"
 import Header from "@/components/header"
 import React, { useState, useEffect } from "react";
-import { auth, db } from "../../firebase"; // Adjust import path as needed
+import { auth, db } from "../../firebase";
 
 import proimage from "@/assets/proimage.png"
 import image1 from "@/assets/image1.png"
