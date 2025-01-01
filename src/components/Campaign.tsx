@@ -5,17 +5,17 @@ import { CardDescription } from "./ui/card";
 import { FaInstagram, FaFacebook, FaYoutube } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { PieChart, Paintbrush, Megaphone, LineChart, Plus } from "lucide-react";
-import Image1 from "@/assets/Tiger.png";
-import Image2 from "@/assets/Screenshot.png";
-import Image3 from "@/assets/image1.png";
-import Image from "next/image";
+// import Image1 from "@/assets/Tiger.png";
+// import Image2 from "@/assets/Screenshot.png";
+// import Image3 from "@/assets/image1.png";
+// import Image from "next/image";
 import Link from "next/link";
 import { useContext } from "react";
 import { Campaign } from "@/context/CampaignContext";
 
 const AdsRunningSection = () => {
 
-  const images = [Image1, Image2, Image3];
+  // const images = [Image1, Image2, Image3];
 
   const { isConnected } = useContext(Campaign);
 
