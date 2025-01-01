@@ -1,407 +1,151 @@
-import React, { useEffect, useState } from "react";
-import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
-import { Button } from "./ui/button";
-// import { useRouter } from "next/navigation";
-import { FaXTwitter } from "react-icons/fa6";
-import { GoogleMock } from "./social-mocks/GoogleMock";
+"use client";
 
-export type CampaignData = {
-  campaignName: string;
-  platform: string;
-  adType: string;
-  CompanyName: string;
-  CompanyLogo: File | null;
-  headline?: string;
-  description?: string;
-  image?: File | null;
-  video?: File | null;
-  url?: string;
-};
+import React, { Suspense, useState } from "react";
+import {
+  CampaignProvider,
+  useCampaignContext,
+} from "@/context/CampaignFormContext";
+import dynamic from "next/dynamic";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
 
-const googleAdTypes = [
-  "Search ads",
-  "Display ads",
-  "Video ads",
-  "App campaigns",
-  "Shopping ads",
-  "Bumper ads",
-  "Dynamic Search Ads",
-  "Discovery ads",
-  "Local campaigns",
-];
-const facebookAdTypes = ["Image Ad", "Video Ad", "Text Ad"];
+const PlatformSelection = dynamic(() => import("./steps/Ads/PlatformSelection"), {
+  loading: () => <Skeleton className="w-full h-[200px]" />,
+});
+const CampaignBasics = dynamic(() => import("./steps/Ads/CampaignBasics"), {
+  loading: () => <Skeleton className="w-full h-[200px]" />,
+});
+const AudienceTargeting = dynamic(() => import("./steps/Ads/AudienceTargeting"), {
+  loading: () => <Skeleton className="w-full h-[200px]" />,
+});
+const AdPlacement = dynamic(() => import("./steps/Ads/AdPlacement"), {
+  loading: () => <Skeleton className="w-full h-[200px]" />,
+});
+const CreativeSetup = dynamic(() => import("./steps/Ads/CreativeSetup"), {
+  loading: () => <Skeleton className="w-full h-[200px]" />,
+});
+const ReviewLaunch = dynamic(() => import("./steps/Ads/ReviewLaunch"), {
+  loading: () => <Skeleton className="w-full h-[200px]" />,
+});
 
-const platforms = [
-  {
-    name: "Google",
-    icon: <FcGoogle size={24} className="size-9 md:size-14" />,
-  },
-  {
-    name: "Facebook",
-    icon: <FaFacebook fill="#3333ff" size={24} className="size-9 md:size-14" />,
-  },
-  {
-    name: "Youtube",
-    icon: <FaYoutube fill="red" size={24} className="size-9 md:size-14" />,
-  },
-  {
-    name: "X",
-    icon: <FaXTwitter size={24} className="size-9 md:size-14" />,
-  },
-  {
-    name: "Instagram",
-    icon: (
-      <FaInstagram size={24} fill="#E4405F" className="size-9 md:size-14" />
-    ),
-  },
+const steps = [
+  "Platform Selection",
+  "Campaign Basics",
+  "Audience Targeting",
+  "Ad Placement",
+  "Creative Setup",
+  "Review and Launch",
 ];
 
-const CreateCampaign = () => {
-  const [step, setStep] = useState<number>(1);
-  const [posts, setPosts] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState<CampaignData>({
-    campaignName: "",
-    platform: "",
-    adType: "",
-    CompanyName: "",
-    CompanyLogo: null,
-    headline: "",
-    description: "",
-    image: null,
-    video: null,
-    url: "",
-  });
+function CampaignWizardContent() {
+  const [currentStep, setCurrentStep] = useState(0);
+  const { updateCampaignData, saveDraft } = useCampaignContext();
 
-  // const router = useRouter();
-  useEffect(() => {
-    setFormData((prev) => ({ ...prev, adType: "" }));
-  }, [formData.platform]);
-
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleNext = (data: any) => {
+    updateCampaignData(data);
+    setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      console.log(formData);
-      // router.push("/campaign");
-    }, 2000);
+  const handleBack = () => {
+    setCurrentStep((prev) => Math.max(prev - 1, 0));
   };
 
-  const handleNext = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setStep((prev) => prev + 1);
-      setLoading(false);
-    }, 2000);
+  const handleSaveDraft = () => {
+    saveDraft();
+    alert("Campaign draft saved successfully!");
   };
 
-  const handlePrevious = () => {
-    setStep((prev) => prev - 1);
+  const renderStep = () => {
+    switch (currentStep) {
+      case 0:
+        return <PlatformSelection onNext={handleNext} />;
+      case 1:
+        return <CampaignBasics onNext={handleNext} />;
+      case 2:
+        return <AudienceTargeting onNext={handleNext} />;
+      case 3:
+        return <AdPlacement onNext={handleNext} />;
+      case 4:
+        return <CreativeSetup onNext={handleNext} />;
+      case 5:
+        return <ReviewLaunch />;
+      default:
+        return null;
+    }
   };
 
   return (
     <>
-      <form onKeyDown={(e) => e.isPropagationStopped()} onSubmit={handleSubmit}>
-        {step === 1 && (
-          <div className="flex flex-col gap-6 w-full max-w-[600px] mx-auto">
-            <div className="flex flex-col gap-4">
-              <h1 className="font-semibold text-2xl md:text-3xl lg:text-4xl">
-                Campaign Name
-              </h1>
-              <p className="text-base font-normal text-gray-500">
-                create a name for your campaign
-              </p>
-            </div>
-            <div className="flex flex-col gap-4">
-              <label htmlFor="campaignName">Campaign name</label>
-              <input
-                className="rounded-md w-full px-4 "
-                id="campaignName"
-                type="text"
-                value={formData.campaignName}
-                onChange={handleChange}
-                name="campaignName"
-                placeholder="Campaign Name"
-                disabled={loading}
-              />
-            </div>
-            <Button
-              onClick={handleNext}
-              type="button"
-              className="max-w-[600px]"
-              disabled={!formData.campaignName || loading}
-            >
-              {loading ? "Loading..." : "Next"}
-            </Button>
-          </div>
-        )}
-        {step === 2 && (
-          <div className="flex flex-col gap-6 w-full max-w-[600px] mx-auto">
-            <div className="flex flex-col gap-4">
-              <h1 className="font-semibold text-2xl md:text-3xl lg:text-4xl">
-                Choose Campaign Platform
-              </h1>
-              <p className="text-base font-normal text-gray-500">
-                choose the platform of your choice to run your Campaigns, and
-                generate leads with ease.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 w-full auto-rows-min max-w-[600px] gap-4 mx-auto">
-              {platforms.map((platform, i) => (
-                <>
-                  <label
-                    htmlFor={platform.name}
-                    key={i}
-                    className="has-[:checked]:border-blue-600 has-[:checked]:bg-opacity-95 bg-blue-50 bg-opacity-20 hover:bg-opacity-90 border-2 hover:cursor-pointer w-full h-[200px] rounded-xl p-10 flex flex-col items-center gap-4"
+      <Card className="w-full max-w-4xl mx-auto">
+        <CardHeader>
+          <CardTitle>Campaign Setup</CardTitle>
+          <CardDescription>
+            <div className="mb-6 overflow-x-auto">
+              <ol className="flex items-center w-full text-xs md:text-sm font-medium text-center text-gray-500 flex-wrap">
+                {steps.map((step, index) => (
+                  <li
+                    key={index}
+                    className={`flex items-center ${
+                      index <= currentStep ? "text-blue-600" : ""
+                    }`}
                   >
-                    {platform.icon}
-                    <h2 className="text-primary text-lg">{platform.name}</h2>
-                    <input
-                      type="radio"
-                      id={platform.name}
-                      value={platform.name}
-                      checked={formData.platform === platform.name}
-                      name="platform"
-                      className="hidden"
-                      onChange={handleChange}
-                      disabled={loading}
-                    />
-                  </label>
-                </>
-              ))}
+                    <span className="flex items-center after:content-['/'] after:mx-2 after:text-gray-200">
+                      {index < currentStep ? (
+                        <div>
+                          <svg
+                            className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2.5"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                          </svg>
+                        </div>
+                      ) : (
+                        <span
+                          className={`mr-2 ${
+                            index === currentStep ? "text-blue-600" : ""
+                          }`}
+                        >
+                          {index + 1}
+                        </span>
+                      )}
+                      {step}
+                    </span>
+                  </li>
+                ))}
+              </ol>
             </div>
-            <Button
-              onClick={handleNext}
-              type="button"
-              className="max-w-[600px]"
-              disabled={!formData.platform || loading}
-            >
-              {loading ? "Loading..." : "Next"}
-            </Button>
-            <div className="w-full flex items-center justify-center">
-              <Button
-                type="button"
-                className="text-center bg-transparent text-primary font-bold hover:bg-transparent"
-                onClick={handlePrevious}
-              >
-                Go back
-              </Button>
-            </div>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Suspense fallback={<Skeleton className="w-full h-[200px]" />}>
+            {renderStep()}
+          </Suspense>
+          <div className="flex justify-between mt-6">
+            {currentStep > 0 && <Button onClick={handleBack}>Back</Button>}
+            {currentStep === steps.length - 1 && (
+              <Button onClick={handleSaveDraft}>Save Draft</Button>
+            )}
           </div>
-        )}
-        {step === 3 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="flex flex-col gap-6 w-full max-w-[600px] mx-auto">
-              {formData.platform === "Google" && (
-                <div className="flex flex-col gap-4">
-                  <h1 className="font-semibold text-2xl md:text-3xl lg:text-4xl">
-                    Google Campaign
-                  </h1>
-                  <p className="text-base font-normal text-gray-500">
-                    fill in the Form to Create your Google ads Campaign
-                  </p>
-                  <div className="flex flex-col gap-4">
-                    <label htmlFor="GoogleAdType">Ad Type</label>
-                    <select
-                      name="adType"
-                      id="GoogleAdType"
-                      className="rounded-md w-full bg-transparent"
-                      value={formData.adType}
-                      onChange={handleChange}
-                      disabled={loading}
-                    >
-                      <option value="" disabled>
-                        Select Ad Type
-                      </option>
-                      {googleAdTypes.map((type, i) => (
-                        <>
-                          <option value={type} key={i}>
-                            {type}
-                          </option>
-                        </>
-                      ))}
-                    </select>
-                  </div>
-                  {formData.adType === "Search ads" && (
-                    <>
-                      <div className="flex flex-col gap-4">
-                        <label htmlFor="GoogleSearchAdsName">
-                          Company Name
-                        </label>
-                        <input
-                          className="rounded-md w-full px-4 "
-                          id="GoogleSearchAdsName"
-                          value={formData.CompanyName}
-                          onChange={handleChange}
-                          name="CompanyName"
-                          placeholder="Enter Company Name"
-                          disabled={loading}
-                        />
-                      </div>
-                      <div className="flex flex-col gap-4">
-                        <label htmlFor="GoogleSearchAdsLink">
-                          Website Link
-                        </label>
-                        <input
-                          className="rounded-md w-full px-4 "
-                          id="GoogleSearchAdsLink"
-                          type="url"
-                          value={formData.url}
-                          onChange={handleChange}
-                          name="url"
-                          placeholder="Enter Website Link"
-                          disabled={loading}
-                        />
-                      </div>
-                      <div className="flex flex-col gap-4">
-                        <label htmlFor="GoogleSearchAdsTopic">Headline</label>
-                        <input
-                          className="rounded-md w-full px-4 "
-                          id="GoogleSearchAdsTopic"
-                          value={formData.headline}
-                          onChange={handleChange}
-                          name="headline"
-                          placeholder="Enter Headline"
-                          disabled={loading}
-                        />
-                      </div>
-                      <div className="flex flex-col gap-4">
-                        <label htmlFor="GoogleSearchAdsDetails">
-                          Description
-                        </label>
-                        <textarea
-                          className=" min-h-[100px] rounded-md w-full px-4"
-                          id="GoogleSearchAdsDetails"
-                          value={formData.description}
-                          onChange={handleChange}
-                          name="description"
-                          placeholder="Enter Description"
-                          disabled={loading}
-                        ></textarea>
-                      </div>
-                    </>
-                  )}
-                  <Button
-                    type="submit"
-                    disabled={
-                      loading ||
-                      !formData.adType ||
-                      !googleAdTypes.includes(formData.adType)
-                    }
-                    className="max-w-[600px]"
-                  >
-                    {loading ? "Loading..." : "Submit"}
-                  </Button>
-                </div>
-              )}
-              {formData.platform === "Facebook" && (
-                <div className="flex flex-col gap-4">
-                  <h1 className="font-semibold text-2xl md:text-3xl lg:text-4xl">
-                    Facebook Campaign
-                  </h1>
-                  <p className="text-base font-normal text-gray-500">
-                    fill in the Form to Create your Facebook ads Campaign
-                  </p>
-                  <div className="flex flex-col gap-4">
-                    <label htmlFor="FacebookAdType">Ad Type</label>
-                    <select
-                      name="adType"
-                      id="FacebookAdType"
-                      className="rounded-md w-full bg-transparent"
-                      value={formData.adType}
-                      onChange={handleChange}
-                    >
-                      <option value="" disabled>
-                        Select Ad Type
-                      </option>
-                      {facebookAdTypes.map((type, i) => (
-                        <>
-                          <option value={type} key={i}>
-                            {type}
-                          </option>
-                        </>
-                      ))}
-                    </select>
-                  </div>
-                  {formData.adType === "Text Ad" && (
-                    <>
-                      <div className="flex flex-col gap-4">
-                        <label htmlFor="FacebookAdsTopic">Headline</label>
-                        <input
-                          className="rounded-md w-full px-4 "
-                          id="FacebookAdsTopic"
-                          name="headline"
-                          value={formData.headline}
-                          onChange={handleChange}
-                        />
-                      </div>
-                      <div className="flex flex-col gap-4">
-                        <label htmlFor="FacebookAdsDetails">Description</label>
-                        <input
-                          className="rounded-md w-full px-4 "
-                          id="FacebookAdsDetails"
-                        />
-                      </div>
-                    </>
-                  )}
-                  <Button
-                    type="submit"
-                    disabled={
-                      !formData.adType ||
-                      !facebookAdTypes.includes(formData.adType)
-                    }
-                    className="max-w-[600px]"
-                  >
-                    Submit
-                  </Button>
-                </div>
-              )}
-              {formData.platform === "X" && (
-                <div className="flex flex-col gap-4">
-                  <h1 className="font-semibold text-2xl md:text-3xl lg:text-4xl">
-                    X Campaign
-                  </h1>
-                  <p className="text-base font-normal text-gray-500">
-                    fill in the Form to Create your X ads Campaign
-                  </p>
-                  <textarea
-                    onChange={(e) => setPosts(e.target.value)}
-                    placeholder="your post"
-                    value={posts}
-                  ></textarea>
-                </div>
-              )}
-              <div className="w-full flex items-center justify-center">
-                <Button
-                  type="button"
-                  className="text-center bg-transparent text-primary font-bold hover:bg-transparent"
-                  onClick={handlePrevious}
-                >
-                  Go back
-                </Button>
-              </div>
-            </div>
-            <div className="flex-1 w-full max-w-[600px] mx-auto">
-              {formData.platform === "Google" && (
-                <GoogleMock formData={formData} />
-              )}
-            </div>
-          </div>
-        )}
-      </form>
+        </CardContent>
+      </Card>
     </>
   );
-};
+}
 
-export default CreateCampaign;
+export default function CreateCampaign() {
+  return (
+    <CampaignProvider>
+      <CampaignWizardContent />
+    </CampaignProvider>
+  );
+}

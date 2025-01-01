@@ -10,7 +10,7 @@ import { ArrowLeft } from "lucide-react";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const CampaignWizard = dynamic(() => import("@/components/text"), {
+const CreateCampaign = dynamic(() => import("@/components/CreateCampaign"), {
   loading: () => (
     <Skeleton className="w-full h-[400px]" />
   ),
@@ -71,8 +71,7 @@ const Page = () => {
             </div>
           ) : (
             <div className="max-w-[900px] w-full mx-auto">
-              {/* <CreateCampaign /> */}
-              <CampaignWizard />
+              <CreateCampaign />
             </div>
           )}
         </main>

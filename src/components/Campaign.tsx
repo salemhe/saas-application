@@ -10,10 +10,14 @@ import Image2 from "@/assets/Screenshot.png";
 import Image3 from "@/assets/image1.png";
 import Image from "next/image";
 import Link from "next/link";
+import { useContext } from "react";
+import { Campaign } from "@/context/CampaignContext";
 
 const AdsRunningSection = () => {
 
   const images = [Image1, Image2, Image3];
+
+  const { isConnected } = useContext(Campaign);
 
 
   return (
@@ -25,7 +29,7 @@ const AdsRunningSection = () => {
           <p className="text-gray-600 text-sm md:text-base max-w-lg">
             From understanding your audience to tracking success, our tools and platforms ensure your campaigns are impactful.
           </p>
-          <Link href="/campaign/create" className="mt-6 flex items-center text-white bg-primary py-3 px-5 rounded-lg hover:opacity-95 transition-all duration-200 w-max">
+          <Link href="/campaign/create" className={`mt-6 items-center text-white bg-primary py-3 px-5 rounded-lg hover:opacity-95 transition-all duration-200 w-max ${isConnected ? " flex" : "hidden"}`}>
             <Plus className="w-4 h-4 mr-2" size={24} />
             Create Campaign
           </Link>

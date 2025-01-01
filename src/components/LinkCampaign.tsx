@@ -2,16 +2,26 @@ import Image1 from '@/assets/Tiger.png';
 import Image2 from '@/assets/Screenshot.png';
 import Image3 from '@/assets/image1.png';
 import Image from 'next/image';
+import { useContext } from 'react';
+import { Campaign } from '@/context/CampaignContext';
 
 export const LinkCampaign = () => {
   const accounts = [
-    { name: "Facebook", icon: "https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg", isConnected: false },
-    { name: "Instagram", icon: "https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png", isConnected: false },
-    { name: "YouTube", icon: "https://upload.wikimedia.org/wikipedia/commons/4/42/YouTube_icon_%282013-2017%29.png", isConnected: false },
-    { name: "X", icon: "https://upload.wikimedia.org/wikipedia/commons/5/5f/X_logo_2023.svg", isConnected: false },
+    { name: "Facebook", icon: "https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg"},
+    { name: "Instagram", icon: "https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png"},
   ];
 
   const images = [Image1, Image2, Image3];
+
+  const { isConnected, setIsConnected } = useContext(Campaign);
+
+  const connectAccount = () => {
+    setIsConnected(true)
+  }
+
+  const disconnectAccount = () => {
+    setIsConnected(false)
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-6 md:p-16 sm:p-4 sm:mt-16">
@@ -32,12 +42,12 @@ export const LinkCampaign = () => {
               />
               <span className="font-medium text-gray-800">{account.name}</span>
             </div>
-            {account.isConnected ? (
-              <button className="text-white bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg">
+            {isConnected ? (
+              <button onClick={disconnectAccount} className="text-white bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg">
                 Disconnect Account
               </button>
             ) : (
-              <button className="text-white bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg">
+              <button onClick={connectAccount} className="text-white bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg">
                 Connect Account
               </button>
             )}
