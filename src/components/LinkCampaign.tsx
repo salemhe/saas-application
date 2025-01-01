@@ -3,6 +3,8 @@ import Image1 from '@/assets/Tiger.png';
 import Image2 from '@/assets/Screenshot.png';
 import Image3 from '@/assets/image1.png';
 import Image from 'next/image';
+import { useContext } from 'react';
+import { Campaign } from '@/context/CampaignContext';
 import React, { useEffect, useState } from 'react';
 import { auth, db } from "../../firebase";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
@@ -39,12 +41,23 @@ declare global {
 }
 
 export const LinkCampaign = () => {
+  const { isConnected, setIsConnected } = useContext(Campaign);
+
   const [accounts, setAccounts] = useState([
-    { name: "Facebook", icon: "https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg",  isConnected: false  },
-    { name: "Instagram", icon: "https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png",  isConnected: false  },
+    { name: "Facebook", icon: "https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg",  isConnected  },
+    { name: "Instagram", icon: "https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png",  isConnected  },
   ]);
   const user = auth.currentUser;
   const images = [Image1, Image2, Image3];
+
+
+  const connectAccount = () => {
+    setIsConnected(true)
+  }
+
+  const disconnectAccount = () => {
+    setIsConnected(false)
+  }
 
   // const [status, setStatus] = useState<ConnectionStatus>({
   //   facebook: false,
@@ -236,6 +249,8 @@ useEffect(() => {
       alert("Facebook SDK not loaded");
       return;
     }
+
+    connectAccount()
   
     try {
       const loginResponse = await new Promise<FacebookAuthResponse>((resolve, reject) => {
@@ -264,6 +279,8 @@ useEffect(() => {
       alert("Facebook SDK not loaded");
       return;
     }
+
+    connectAccount()
   
     try {
       // Initiate Facebook login
@@ -320,6 +337,7 @@ const handleDisconnect = async (accountName: string) => {
       console.error("No user logged in");
       return;
     }
+    disconnectAccount()
     switch (accountName) {
       case "Facebook":
         try {
