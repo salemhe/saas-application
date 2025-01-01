@@ -11,7 +11,7 @@ export const Campaign = createContext<CampaignType>({
 });
 
 export const CampaignProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isConnected, setIsConnected] = useState(true);
+  const [isConnected, setIsConnected] = useState(false);
 
   return (
     <Campaign.Provider value={{ isConnected, setIsConnected }}>

@@ -50,15 +50,6 @@ export const LinkCampaign = () => {
   const user = auth.currentUser;
   const images = [Image1, Image2, Image3];
 
-
-  const connectAccount = () => {
-    setIsConnected(true)
-  }
-
-  const disconnectAccount = () => {
-    setIsConnected(false)
-  }
-
   // const [status, setStatus] = useState<ConnectionStatus>({
   //   facebook: false,
   // });
@@ -244,13 +235,12 @@ useEffect(() => {
   // };
   
   // Modified login handler with better error handling
-  const handleFacebookLogin = async () => {
+  const handleFacebookLogin = async () => { 
     if (!window.FB) {
       alert("Facebook SDK not loaded");
       return;
     }
 
-    connectAccount()
   
     try {
       const loginResponse = await new Promise<FacebookAuthResponse>((resolve, reject) => {
@@ -280,7 +270,6 @@ useEffect(() => {
       return;
     }
 
-    connectAccount()
   
     try {
       // Initiate Facebook login
@@ -337,7 +326,6 @@ const handleDisconnect = async (accountName: string) => {
       console.error("No user logged in");
       return;
     }
-    disconnectAccount()
     switch (accountName) {
       case "Facebook":
         try {
@@ -440,6 +428,7 @@ const handleDisconnect = async (accountName: string) => {
 };
 
 const handleAccountToggle = async (accountName: string, isCurrentlyConnected: boolean) => {
+  setIsConnected(!isConnected);
   try {
     if (isCurrentlyConnected) {
       // Disconnect logic
