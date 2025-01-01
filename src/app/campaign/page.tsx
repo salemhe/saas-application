@@ -225,6 +225,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import Header from "../../components/header";
 import Campaign from "@/components/Campaign";
+import { LinkCampaign } from "@/components/LinkCampaign";
 // import { Link2Off } from "lucide-react";
 // import { FaFacebook, FaGoogle } from "react-icons/fa";
 

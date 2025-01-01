@@ -1,23 +1,36 @@
-import { NextRequest, NextResponse } from 'next/server';
-import axios from 'axios';
+// app/api/connect-ad-account/route.ts
+import { NextResponse } from 'next/server'
 
-export async function POST(req: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const { token, adAccountId } = await req.json();
+    // Parse the JSON body
+    const { token, adAccountId, userId } = await request.json()
 
-    // Example: Fetch ad account details from Facebook
-    const response = await axios.get(
-      `https://graph.facebook.com/v15.0/${adAccountId}`,
-      {
-        params: { access_token: token },
-      }
-    );
-    console.log(response.data);
+    // Validate required fields
+    if (!token || !userId) {
+      return NextResponse.json(
+        { message: 'Missing required fields' },
+        { status: 400 }
+      )
+    }
 
-    return NextResponse.json(response.data, { status: 200 });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ message: 'Error connecting to ad account' }, { status: 500 });
+    const facebookUrl = `https://graph.facebook.com/v18.0/${adAccountId}/insights?access_token=${token}`
+
+    // Your logic to handle the Facebook ad account connection
+    const response = await fetch(facebookUrl)
+    const data = await response.json()
+
+    // Return success response
+    return NextResponse.json({
+      data,
+      success: true,
+      message: 'Ad account connected successfully'
+    })
+  } catch (error: any) {
+    console.error('API Error:', error)
+    return NextResponse.json(
+      { message: error.message || 'Internal server error' },
+      { status: 500 }
+    )
   }
 }
-

@@ -18,10 +18,11 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
-import {  Copy, Clock, SendHorizontal, CircleStop, ImageIcon } from "lucide-react";
+import {  Copy, Clock, SendHorizontal, CircleStop, ImageIcon, } from "lucide-react";
 import { auth, db } from "../../firebase";
 import { serverTimestamp, addDoc, collection, orderBy, query, where, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import Image from "next/image";
+import GradientSparklesIcon from "./GradientSparklesIcon";
 type Industry = "General" | "Tech" | "Health" | "Education";
 type Tone = "Professional" | "Casual" | "Persuasive";
 type ContentType = "Ad Copy" | "Twitter Post" | "Instagram Caption" | "Facebook Post" | "LinkedIn Post";
@@ -187,6 +188,31 @@ const AiGenerator = () => {
     }
   };
 
+  const shouldGenerateImage = (prompt: string): boolean => {
+    // Keywords that suggest visual content is needed
+    const visualKeywords = [
+      'image',
+      'picture',
+      'photo',
+      'visual',
+      'banner',
+      'logo',
+      'design',
+      'illustration',
+      'graphic',
+      'artwork',
+      'creative'
+    ];
+
+    // Check if prompt contains visual keywords
+    const containsVisualKeyword = visualKeywords.some(keyword => 
+      prompt.toLowerCase().includes(keyword)
+    );
+
+    // Generate image if:
+    // 2. OR if the prompt specifically mentions visual content
+    return containsVisualKeyword;
+  };
   const handleSendMessage = async () => {
     const user = auth.currentUser;
   
@@ -268,8 +294,8 @@ const AiGenerator = () => {
 
        // Optionally generate an image
       let generatedImageBase64 = null;
-      if (selectedImage || contentType === "Ad Copy") {
-        const imagePrompt = `Create an image for the following content: "${generatedText}"`;
+      if (shouldGenerateImage(inputMessage)) {
+        const imagePrompt = `Create a professional, high-quality image based on this specific request: "${inputMessage}"`;
         generatedImageBase64 = await handleGenerateImage(imagePrompt);
       }
   
@@ -444,9 +470,9 @@ const AiGenerator = () => {
     }
   };
   return (
-    <div className="lg:col-span-2 space-y-6 mx-auto h-[90vh] bg-gray-10 rounded-l  w-full mt-32 md:mt-8 md:p-6 ">
+    <div className="lg:col-span-2 space-y-6 mx-auto h-[100vh] bg-gray-10 rounded-l  w-full mt-32 md:mt-8 md:p-6 relative">
       {/* Configuration Filters */}
-      <div className="bg-gradient-to- relative from-[#f8fafc] to-[#e3ebf6 mb-8 p-4 md:p-8 rounded-3xl w-full md:w-full shadow-l space-y-8">
+      <div className="bg-gradient-to relative from-[#f8fafc] to-[#e3ebf6 mb-8 p-4 md:p-8 rounded-3xl w-full md:w-full shadow-l space-y-8">
       {/* Filters Section */}
       <div className="flex flex-wrap lg:flex-nowrap items-center justify-between gap-6">
         <div className="flex flex-wrap lg:flex-nowrap gap-4 w-full items-center">
@@ -529,8 +555,9 @@ const AiGenerator = () => {
       </div>
 
        {/* Content Display */}
+       <div className="relative w-full space-y-6 flex flex-col pb-6">
        {(selectedHistoryItem || messages.length > 0) ? (
-          <div className=" max-h-[328px] overflow-y-auto mb-8 bottom-8 p-6 rounded-2xl space-y-4 ">
+          <div className="lg:max-h-[calc(100vh-218px)] max-h-[calc(100vh-338px)] overflow-y-auto mb-8  p-6 pb-16 rounded-2xl space-y-4 ">
             <h2 className="text-2xl font-semibold text-[#5a5acb]">
               {/* {selectedHistoryItem ? "History Item" : "Generated Content"} */}
               Generated Content
@@ -575,86 +602,88 @@ const AiGenerator = () => {
             )}
             </div>
         ):  (
-          <div className="flex flex-col justify-center items-center h-[55vh]  md:h-[308px] text-gray-400">
-            <p className="text-sm">Generate tailored content through an interactive chat experience.</p>
-            <p>What can I help with?</p>
+          <div className="flex flex-col justify-center items-center h-[45vh]  md:h-[308px] ">
+            <GradientSparklesIcon/>
+            <p className=" text-base text-gray-400 ">Generate tailored content through an interactive chat experience.</p>
           </div>
         )
       }
 
         {/* Prompt Area */}
-        <div className="flex-col bg-white rounded-2xl shadow-md fixed  bottom-2 border p-2 w-full max-w-3xl mx-auto items-center">
-          {imagePreview && (
-                <div className="mt-4 flex ml-4 items-start">
-                  <div className="relative inline-block">
-                    <Image
-                      width={100}
-                      height={100}
-                      src={imagePreview}
-                      alt="Selected preview"
-                      className="w-full h-auto max-h-[100px] object-contain rounded-md"
-                    />
-                    <button
-                      onClick={handleRemoveImage}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition"
-                      aria-label="Remove Image"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </div>
-              )}
-          <div className="flex items-center ">
-            {/* Upload Image and Preview */}
-            <div>
-              
-              <div className="flex items-center space-x-3">
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                  id="image-upload"
-                />
-                <label
-                  htmlFor="image-upload"
-                  className="cursor-pointer p-2 text-gray-500 hover:text-gray-700 transition"
-                >
-                  <ImageIcon className="w-6 h-6"/>
-                </label>
-                {/* {selectedImage && <span className="text-sm text-gray-600">{selectedImage.name}</span>} */}
-              </div>
-
-              
-            </div>
-            
-              <textarea
-                id="prompt"
-                placeholder="Enter your prompt here..."
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                rows={1}
-                className="w-full flex-grow bg-transparent border-none rounded-none focus:outline-none focus:ring-0 outline-none resize-none"
+        {/* <div className="w-full bg-white"> */}
+        <div className="absolute  bottom-0 left-0 right-0 px-4 md:px-8 w-full">
+        <div className="bg-white rounded-2xl shadow-md border p-4 max-w-5xl mx-auto">
+        {imagePreview && (
+          <div className="mt-2  flex  items-start">
+            <div className="relative inline-block">
+              <Image
+                width={100}
+                height={100}
+                src={imagePreview}
+                alt="Selected preview"
+                className="w-20 md:w-24 h-auto max-h-[80px] md:max-h-[100px] object-contain rounded-md"
               />
-            {/* Action Buttons */}
-            {!isLoading ? (
               <button
-                onClick={handleSendMessage}
-                className=" p-2 text-gray-500 hover:text-blue-600 transition"
+                onClick={handleRemoveImage}
+                className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 md:w-6 md:h-6 flex items-center justify-center hover:bg-red-600 transition text-xs md:text-sm"
+                aria-label="Remove Image"
               >
-                <SendHorizontal className="w-6 h-6"/>
+                X
               </button>
-            ) : (
-              <button
-                onClick={handleCancel}
-                className="p-2 text-red-500   transition"
-              >
-                <CircleStop className="w-6 h-6"/>
-              </button>
-            )}
+            </div>
           </div>
+        )}
         
+        <div className="flex items-center gap-2 ">
+          <div className="flex-shrink-0">
+            <Input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
+              id="image-upload"
+            />
+            <label
+              htmlFor="image-upload"
+              className="cursor-pointer p-2  text-gray-500 hover:text-gray-700 transition inline-flex"
+            >
+              <ImageIcon className="w-5 h-5 md:w-6 md:h-6" />
+            </label>
+          </div>
+
+          <div className="flex-grow relative">
+            <textarea
+              id="prompt"
+              placeholder="Enter your prompt here..."
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              rows={1}
+              className="w-full bg-transparent border-none rounded-none focus:outline-none focus:ring-0 resize-none text-sm md:text-base py-2 pr-6"
+            />
+          </div>
+
+              <div className="flex-shrink-0">
+                {!isLoading ? (
+                  <button
+                    onClick={handleSendMessage}
+                    className="p-2 text-gray-500 hover:text-blue-600 transition"
+                  >
+                    <SendHorizontal className="w-5 h-5" />
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleCancel}
+                    className="p-2 text-red-500 transition"
+                  >
+                    <CircleStop className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+      {/* </div> */}
       </div>
 
 

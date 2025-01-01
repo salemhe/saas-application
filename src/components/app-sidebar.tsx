@@ -41,7 +41,7 @@ const data = {
   },
   teams: [
     {
-      name: "BoostR Ads",
+      name: "",
       logo: GalleryVerticalEnd,
       logo2: Logo,
       plan: "Enterprise",
@@ -121,7 +121,7 @@ const data = {
       ],
     },
     {
-      title: "Ad Running Section",
+      title: "Campaign",
       url: "/campaign",
       icon: SmartphoneNfc,
       items: [
