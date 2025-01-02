@@ -3,9 +3,9 @@
 // import { useEffect, useState } from "react";
 // import { useRouter } from "next/navigation";
 // import { onAuthStateChanged } from "firebase/auth";
-// import { 
-//   auth, 
-//   // db 
+// import {
+//   auth,
+//   // db
 // } from "../../../firebase";
 // import { AppSidebar } from "@/components/app-sidebar"
 // import {
@@ -22,9 +22,9 @@
 //   linkWithPopup,
 //   unlink,
 // } from "firebase/auth";
-// import { 
-//   doc, 
-//   updateDoc, 
+// import {
+//   doc,
+//   updateDoc,
 //   // getDoc
 //  } from "firebase/firestore";
 
@@ -34,7 +34,7 @@
 //   //   facebook: false,
 //   //   google: false,
 //   // });
-//   const [loading, setLoading] = useState(true); 
+//   const [loading, setLoading] = useState(true);
 //   const router = useRouter();
 
 //   useEffect(() => {
@@ -64,7 +64,7 @@
 //   //   const fetchUserData = async () => {
 //   //     const user = auth.currentUser;
 //   //     if (!user) return;
-  
+
 //   //     try {
 //   //       // Check linked providers
 //   //       const providerData = user.providerData;
@@ -80,10 +80,9 @@
 //   //       console.error("Error fetching user data:", error);
 //   //     }
 //   //   };
-  
+
 //   //   fetchUserData();
 //   // }, []);
-  
 
 //   // const linkSocialAccount = async (providerName: "facebook" | "google") => {
 //   //   const user = auth.currentUser;
@@ -163,19 +162,19 @@
 //           <div className="max-w-[900px] w-full mx-auto ">
 //             {/* <h2 className="text-2xl font-semibold text-gray-800 mb-4">Linked Accounts</h2>
 //             <div className="space-y-4">
-//               {[ 
-//                 { 
-//                   provider: "facebook", 
+//               {[
+//                 {
+//                   provider: "facebook",
 //                   icon: <FaFacebook size={24} className="text-blue-600" />,
-//                   name: "Facebook" 
+//                   name: "Facebook"
 //                 },
-//                 { 
-//                   provider: "google", 
+//                 {
+//                   provider: "google",
 //                   icon: <FaGoogle size={24} className="text-red-500" />,
-//                   name: "Google" 
+//                   name: "Google"
 //                 }
 //               ].map(({ provider, icon, name }) => (
-//                 <div 
+//                 <div
 //                   key={provider}
 //                   className="flex justify-between items-center bg-gray-100 p-4 rounded-lg transition duration-300 hover:bg-gray-200"
 //                 >
@@ -216,9 +215,6 @@
 
 // export default Page;
 
-
-
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -229,7 +225,6 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import Header from "../../components/header";
 import Campaign from "@/components/Campaign";
-import { LinkCampaign } from "@/components/LinkCampaign";
 // import { Link2Off } from "lucide-react";
 // import { FaFacebook, FaGoogle } from "react-icons/fa";
 
@@ -240,19 +235,19 @@ import { LinkCampaign } from "@/components/LinkCampaign";
 //   unlink,
 // } from "firebase/auth";
 // import { doc, updateDoc } from "firebase/firestore";
-// import { LinkCampaign } from "@/components/LinkCampaign";
+import { LinkCampaign } from "@/components/LinkCampaign";
+import { CampaignProvider } from "@/context/CampaignContext";
 // import {
 //   FacebookAuthProvider,
 //   GoogleAuthProvider,
 //   linkWithPopup,
 //   unlink,
 // } from "firebase/auth";
-// import { 
-//   doc, 
-//   updateDoc, 
+// import {
+//   doc,
+//   updateDoc,
 //   // getDoc
 //  } from "firebase/firestore";
-
 
 function Page() {
   const [authenticated, setAuthenticated] = useState(false);
@@ -343,8 +338,10 @@ function Page() {
                   </div>
                 ))}
               </div> */}
-              <Campaign />
-              <LinkCampaign />
+              <CampaignProvider>
+                <Campaign />
+                <LinkCampaign />
+              </CampaignProvider>
             </div>
           )}
         </main>
