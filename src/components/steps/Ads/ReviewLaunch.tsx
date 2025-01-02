@@ -3,15 +3,153 @@
 import { Button } from "@/components/ui/button";
 import { useCampaignContext } from "@/context/CampaignFormContext";
 import AdPreview from "../preview/AdPreview";
+import { useState } from "react";
 
 export default function ReviewLaunch() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
   const { campaignData } = useCampaignContext();
 
-  const handleLaunch = () => {
-    console.log("Campaign Data:", campaignData);
-    // Here you would typically send the campaignData to your backend or ad platform API
-    alert("Campaign launched! Check the console for the campaign data.");
+  const createFacebookAd = async () => {
+    setIsLoading(true);
+    setError("");
+    setSuccess("");
+
+    const accessToken = sessionStorage.getItem("accessToken");
+    if (!accessToken) {
+      setError("Please connect your Facebook Ads account first");
+      setIsLoading(false);
+    }
+
+    try {
+      // Create Ad Campaign
+      const campaignResponse = await fetch(
+        "https://graph.facebook.com/v18.0/act_YOUR_AD_ACCOUNT_ID/campaigns", // Please add the act_YOUR_AD_ACCOUNT_ID
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            access_token: accessToken,
+            name: `${campaignData.campaignName} Campaign`,
+            objective: "LINK_CLICKS",
+            status: "PAUSED", // Start paused for review
+            special_ad_categories: [],
+          }),
+        }
+      );
+
+      const createCampaign = await campaignResponse.json();
+      if (!campaignResponse.ok) throw new Error(createCampaign.error?.message);
+
+      // Create Ad Set
+      const adSetResponse = await fetch(
+        `https://graph.facebook.com/v18.0/act_YOUR_AD_ACCOUNT_ID/adsets`, // Please add the act_YOUR_AD_ACCOUNT_ID
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            access_token: accessToken,
+            name: `${campaignData.campaignName} Ad Set`,
+            campaign_id: createCampaign.id,
+            daily_budget: Number(campaignData.dailyBudget) * 100, // Convert to cents
+            billing_event: "IMPRESSIONS",
+            optimization_goal: "LINK_CLICKS",
+            bid_strategy: "LOWEST_COST_WITHOUT_CAP",
+            targeting: {
+              age_min: campaignData.ageMin,
+              age_max: campaignData.ageMax,
+              genders: [1, 2],
+              geo_locations: {
+                countries: ["US"],
+              },
+            },
+            status: "PAUSED",
+            end_time: new Date(
+              Date.now() + Number(campaignData.duration) * 24 * 60 * 60 * 1000
+            ).toISOString(),
+          }),
+        }
+      );
+
+      const adSetData = await adSetResponse.json();
+      if (!adSetResponse.ok) throw new Error(adSetData.error?.message);
+
+      // Create Ad Creative
+      const creativeResponse = await fetch(
+        `https://graph.facebook.com/v18.0/act_YOUR_AD_ACCOUNT_ID/adcreatives`, // Please add the act_YOUR_AD_ACCOUNT_ID
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            access_token: accessToken,
+            name: `${campaignData.campaignName} Creative`,
+            object_story_spec: {
+              page_id: "YOUR_PAGE_ID",
+              link_data: {
+                message: campaignData.description,
+                link: campaignData.linkUrl,
+                call_to_action: {
+                  type: campaignData.callToAction,
+                },
+                name: campaignData.headline,
+              },
+            },
+          }),
+        }
+      );
+
+      const creativeData = await creativeResponse.json();
+      if (!creativeResponse.ok) throw new Error(creativeData.error?.message);
+
+      // Create Ad
+      const adResponse = await fetch(
+        `https://graph.facebook.com/v18.0/act_YOUR_AD_ACCOUNT_ID/ads`, // Please add the act_YOUR_AD_ACCOUNT_ID
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            access_token: accessToken,
+            name: campaignData.campaignName,
+            adset_id: adSetData.id,
+            creative: { creative_id: creativeData.id },
+            status: "PAUSED",
+          }),
+        }
+      );
+
+      const adResponseData = await adResponse.json();
+      if (!adResponse.ok) throw new Error(adResponseData.error?.message);
+
+      setSuccess(
+        "Ad created successfully! Please review and activate it in your Facebook Ads Manager."
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to create ad");
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  const handleLaunch = async () => {
+    console.log("Campaign Data:", campaignData);
+    if (campaignData.platform === "facebook") {
+      createFacebookAd();
+    } else {
+      alert("nothing set for Instagram Campaign Yet.");
+    }
+  };
+
+  const filesArray = Array.from(campaignData.media);
 
   return (
     <div className="space-y-6">
@@ -19,16 +157,17 @@ export default function ReviewLaunch() {
       <div className="flex flex-col">
         {Object.entries({
           ...campaignData,
-          media: "url will be fetched from backend",
+          // URL is to be fetched from the backend, you can use cloudinary
+          media: filesArray.map((item: any) => item.name),
         }).map(([key, value]) => (
           <div
             key={key}
             className=" gap-2 grid grid-cols-2 break-words justify-between md:text-base odd:bg-slate-200 py-2 px-2"
           >
             <span className="font-bold text-sm">{key.toUpperCase()}:</span>
-            <span className="text-xs md:text-sm w-full flex-1 truncate gap-2 break-words">
+            <span className="text-xs md:text-sm w-full flex-1 gap-2 break-words">
               {typeof value === "object"
-                ? JSON.stringify(value).toUpperCase()
+                ? value.join(", ").toUpperCase()
                 : String(value).toUpperCase()}
             </span>
           </div>
@@ -48,8 +187,11 @@ export default function ReviewLaunch() {
           />
         </div>
       )}
+      {error && <div className="text-red-500 text-sm">{error}</div>}
+
+      {success && <div className="text-green-500 text-sm">{success}</div>}
       <Button className="w-full" onClick={handleLaunch}>
-        Launch Campaign
+        {isLoading ? "Launching Campaign..." : "Launch Campaign"}
       </Button>
     </div>
   );

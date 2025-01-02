@@ -53,7 +53,7 @@ export default function CreativeSetup({ onNext }: CreativeSetupProps) {
       description: campaignData.description || "",
       callToAction: campaignData.callToAction || "",
       linkUrl: campaignData.linkUrl || "",
-      media: campaignData.media,
+      media: [],
     },
   });
 

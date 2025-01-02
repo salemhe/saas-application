@@ -24,7 +24,7 @@ export default function FacebookVideoAd({primaryText, headline, cta, media}: Fac
       <div className="relative">
         <div className="bg-gray-200 h-[225px] flex items-center justify-center">
           {/* <Play size={48} className="text-gray-500" /> */}
-          <video src={media[0]} className='aspect-video' controls loop>
+          <video src={media[0]} className='h-full w-full bg-black' controls loop>
 
           </video>
         </div>

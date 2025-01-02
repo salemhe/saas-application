@@ -9,7 +9,7 @@ interface FacebookStoryAdProps {
 const FacebookStoryAd: React.FC<FacebookStoryAdProps> = ({ media, cta }) => {
   return (
     <div className="relative w-full h-[600px] rounded-lg overflow-hidden">
-      <img src={media[0]} alt="Story Ad" className="w-full h-full object-cover" />
+      <img src={media[0] || "/test.jpg"} alt="Story Ad" className="w-full h-full object-cover" />
       <div className="absolute bottom-4 left-0 right-0 text-center">
         <a
           href="#"

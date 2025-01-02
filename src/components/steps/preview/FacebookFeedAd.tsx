@@ -19,7 +19,7 @@ const FacebookFeedAd: React.FC<FacebookFeedAdProps> = ({
     <div className="w-full max-w-md border rounded-lg shadow-lg p-4 bg-white">
       <p className="text-sm text-gray-700">{primaryText}</p>
       <div className="mt-2 aspect-video rounded overflow-hidden">
-        <img src={media[0]} alt="Ad Media" className="w-full h-full object-cover" />
+        <img src={media[0] || "/test.jpg"} alt="Ad Media" className="w-full h-full object-cover" />
       </div>
       <h3 className="mt-4 text-lg font-semibold">{headline}</h3>
       <a
