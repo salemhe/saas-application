@@ -72,7 +72,7 @@ const AiGenerator = () => {
   const [selectedHistoryItem, setSelectedHistoryItem] = useState<HistoryItem | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const abortController = useRef<AbortController | null>(null);
-
+  const [isSheetOpen, setIsSheetOpen] = useState<boolean>(false);
   useEffect(() => {
     if (!apiKey) {
       console.error("Gemini API key is not set");
@@ -250,7 +250,7 @@ const AiGenerator = () => {
         hasImage: !!selectedImage,
       });
   
-      let promptText = `Generate ${contentType} content in the ${industry} industry, using a ${tone} tone, based on: "${inputMessage}".`;
+      let promptText = `Generate a marketing ad for ${contentType} content in the ${industry} industry, using a ${tone} tone, based on: "${inputMessage}".`;
       if (contentType === "twitter") {
         promptText +=
           " Provide a thread of 5 tweets, each under 280 characters.";
@@ -419,6 +419,8 @@ const AiGenerator = () => {
     setSelectedHistoryItem(item);
     setContentType(item.contentType);
     setInputMessage(item.prompt);
+    console.log("Clicked item:", item);
+    setIsSheetOpen(false); 
     setMessages(
       item.contentType === "twitter"
         ? item.content.split("\n\n")
@@ -514,9 +516,12 @@ const AiGenerator = () => {
         </div>
 
         {/* History Button */}
-        <Sheet>
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
           <SheetTrigger asChild>
-            <Button className="px-4 py-2 bg-gradient-to-r from-[#eff1f6] to-[#d7e0ff] text-[#5a5acb] font-medium text-sm rounded-lg hover:from-[#d7e0ff] hover:to-[#eff1f6] shadow-md transition">
+            <Button
+              onClick={() => setIsSheetOpen(true)}
+              className="px-4 py-2 bg-gradient-to-r from-[#eff1f6] to-[#d7e0ff] text-[#5a5acb] font-medium text-sm rounded-lg hover:from-[#d7e0ff] hover:to-[#eff1f6] shadow-md transition"
+            >
               <span className="flex items-center">
                 History
                 <Clock className="w-5 h-5 text-[#5a5acb] ml-2" />
@@ -527,7 +532,7 @@ const AiGenerator = () => {
             <SheetHeader>
               <SheetTitle className="text-lg font-semibold text-gray-800">History</SheetTitle>
             </SheetHeader>
-            <div className="space-y-4 mt-4 overflow-y-aut overflow-y-scroll">
+            <div className="space-y-4 mt-4 overflow-y-auto">
               {history.map((item) => (
                 <div
                   key={item.id}
@@ -611,8 +616,8 @@ const AiGenerator = () => {
 
         {/* Prompt Area */}
         {/* <div className="w-full bg-white"> */}
-        <div className="absolute  bottom-0 left-0 right-0 px-4 md:px-8 w-full">
-        <div className="bg-white rounded-2xl shadow-md border p-4 max-w-5xl mx-auto">
+        <div className=" fixed md:absolute lg:absolute bottom-0 left-0 right-0 px- md:px-8 w-full">
+        <div className="bg-white md:rounded-2xl shadow-md border p-4 md:max-w-5xl md:mx-auto lg:max-w-5xl lg:mx-auto">
         {imagePreview && (
           <div className="mt-2  flex  items-start">
             <div className="relative inline-block">
@@ -621,7 +626,7 @@ const AiGenerator = () => {
                 height={100}
                 src={imagePreview}
                 alt="Selected preview"
-                className="w-20 md:w-24 h-auto max-h-[80px] md:max-h-[100px] object-contain rounded-md"
+                className="w-[70px] md:w-24 h-auto max-h-[70px] md:max-h-[100px] object-contain rounded-md"
               />
               <button
                 onClick={handleRemoveImage}
