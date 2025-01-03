@@ -12,8 +12,7 @@ import { useCampaignContext } from "@/context/CampaignFormContext";
 const schema = z.object({
   manualPlacements: z
     .array(z.string())
-    .min(1, "At least one placement is required")
-    .optional(),
+    .min(1, "At least one placement is required"),
   deviceType: z.enum(["all", "mobile", "desktop"], {
     required_error: "Please select a device type",
   }),
@@ -32,7 +31,7 @@ export default function AdPlacement({ onNext }: AdPlacementProps) {
   } = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
-      manualPlacements: campaignData.manualPlacements,
+      manualPlacements: ['Feed Ads'],
       deviceType: "all",
     },
   });

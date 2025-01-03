@@ -26,7 +26,7 @@ export default function ReviewLaunch() {
     try {
       // Create Ad Campaign
       const campaignResponse = await fetch(
-        "https://graph.facebook.com/v18.0/act_YOUR_AD_ACCOUNT_ID/campaigns", // Please add the act_YOUR_AD_ACCOUNT_ID
+        "https://graph.facebook.com/v18.0/1312563242994065/campaigns", // Please add the 1312563242994065
         {
           method: "POST",
           headers: {
@@ -47,7 +47,7 @@ export default function ReviewLaunch() {
 
       // Create Ad Set
       const adSetResponse = await fetch(
-        `https://graph.facebook.com/v18.0/act_YOUR_AD_ACCOUNT_ID/adsets`, // Please add the act_YOUR_AD_ACCOUNT_ID
+        `https://graph.facebook.com/v18.0/1312563242994065/adsets`, // Please add the 1312563242994065
         {
           method: "POST",
           headers: {
@@ -82,7 +82,7 @@ export default function ReviewLaunch() {
 
       // Create Ad Creative
       const creativeResponse = await fetch(
-        `https://graph.facebook.com/v18.0/act_YOUR_AD_ACCOUNT_ID/adcreatives`, // Please add the act_YOUR_AD_ACCOUNT_ID
+        `https://graph.facebook.com/v18.0/1312563242994065/adcreatives`, // Please add the 1312563242994065
         {
           method: "POST",
           headers: {
@@ -111,7 +111,7 @@ export default function ReviewLaunch() {
 
       // Create Ad
       const adResponse = await fetch(
-        `https://graph.facebook.com/v18.0/act_YOUR_AD_ACCOUNT_ID/ads`, // Please add the act_YOUR_AD_ACCOUNT_ID
+        `https://graph.facebook.com/v18.0/1312563242994065/ads`, // Please add the 1312563242994065
         {
           method: "POST",
           headers: {

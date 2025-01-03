@@ -12,7 +12,7 @@ import { useCampaignContext } from '@/context/CampaignFormContext'
 const schema = z.object({
   location: z.string().min(1, 'Location is required'),
   ageMin: z.number().min(13, 'Minimum age is 13').max(65, 'Maximum age is 65'),
-  ageMax: z.number().min(13, 'Minimum age is 13').max(65, 'Maximum age is 65'),
+  ageMax: z.number({required_error: 'test now'}).min(13, 'Minimum age is 13').max(65, 'Maximum age is 65'),
   gender: z.enum(['all', 'male', 'female'], {
     required_error: "Please select a gender option",
   }),
@@ -44,19 +44,19 @@ export default function AudienceTargeting({ onNext }: AudienceTargetingProps) {
     <form onSubmit={handleSubmit(onNext)} className="space-y-6">
       <div>
         <Label htmlFor="location">Location</Label>
-        <Input id="location" {...register('location')} />
+        <Input id="location" {...register('location')} placeholder='Enter campaign location' />
         {errors.location && <p className="text-red-500 text-sm mt-1">{errors.location.message}</p>}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="ageMin">Minimum Age</Label>
-          <Input id="ageMin" type="number" {...register('ageMin', { valueAsNumber: true })} />
+          <Input id="ageMin" type="number" {...register('ageMin', { valueAsNumber: true })} placeholder='Enter minimum age' />
           {errors.ageMin && <p className="text-red-500 text-sm mt-1">{errors.ageMin.message}</p>}
         </div>
         <div>
           <Label htmlFor="ageMax">Maximum Age</Label>
-          <Input id="ageMax" type="number" {...register('ageMax', { valueAsNumber: true })} />
+          <Input id="ageMax" type="number" {...register('ageMax', { valueAsNumber: true })} placeholder='Enter maximum age' />
           {errors.ageMax && <p className="text-red-500 text-sm mt-1">{errors.ageMax.message}</p>}
         </div>
       </div>
@@ -84,18 +84,18 @@ export default function AudienceTargeting({ onNext }: AudienceTargetingProps) {
 
       <div>
         <Label htmlFor="interests">Interests (Optional)</Label>
-        <Input id="interests" {...register('interests')} />
+        <Input id="interests" {...register('interests')} placeholder='Enter interests' />
         <p className="text-sm text-gray-500 mt-1">Adding interests can help narrow your audience.</p>
       </div>
 
       <div>
         <Label htmlFor="customAudience">Custom Audience (Optional)</Label>
-        <Input id="customAudience" {...register('customAudience')} />
+        <Input id="customAudience" {...register('customAudience')} placeholder='Enter audience' />
       </div>
 
       <div>
         <Label htmlFor="lookalikeAudience">Lookalike Audience (Optional)</Label>
-        <Input id="lookalikeAudience" {...register('lookalikeAudience')} />
+        <Input id="lookalikeAudience" {...register('lookalikeAudience')} placeholder='Enter lookalike audience' />
       </div>
 
       <Button type="submit" className="w-full">Next</Button>
