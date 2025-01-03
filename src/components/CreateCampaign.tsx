@@ -16,24 +16,12 @@ import {
   CardTitle,
 } from "./ui/card";
 
-const PlatformSelection = dynamic(() => import("./steps/Ads/PlatformSelection"), {
-  loading: () => <Skeleton className="w-full h-[200px]" />,
-});
-const CampaignBasics = dynamic(() => import("./steps/Ads/CampaignBasics"), {
-  loading: () => <Skeleton className="w-full h-[200px]" />,
-});
-const AudienceTargeting = dynamic(() => import("./steps/Ads/AudienceTargeting"), {
-  loading: () => <Skeleton className="w-full h-[200px]" />,
-});
-const AdPlacement = dynamic(() => import("./steps/Ads/AdPlacement"), {
-  loading: () => <Skeleton className="w-full h-[200px]" />,
-});
-const CreativeSetup = dynamic(() => import("./steps/Ads/CreativeSetup"), {
-  loading: () => <Skeleton className="w-full h-[200px]" />,
-});
-const ReviewLaunch = dynamic(() => import("./steps/Ads/ReviewLaunch"), {
-  loading: () => <Skeleton className="w-full h-[200px]" />,
-});
+const PlatformSelection = dynamic(() => import("./steps/Ads/PlatformSelection"))
+const CampaignBasics = dynamic(() => import("./steps/Ads/CampaignBasics"))
+const AudienceTargeting = dynamic(() => import("./steps/Ads/AudienceTargeting"));
+const AdPlacement = dynamic(() => import("./steps/Ads/AdPlacement"));
+const CreativeSetup = dynamic(() => import("./steps/Ads/CreativeSetup"));
+const ReviewLaunch = dynamic(() => import("./steps/Ads/ReviewLaunch"));
 
 const steps = [
   "Platform Selection",
@@ -46,7 +34,7 @@ const steps = [
 
 function CampaignWizardContent() {
   const [currentStep, setCurrentStep] = useState(0);
-  const { updateCampaignData, saveDraft } = useCampaignContext();
+  const { updateCampaignData } = useCampaignContext();
 
   const handleNext = (data: any) => {
     updateCampaignData(data);
@@ -55,11 +43,6 @@ function CampaignWizardContent() {
 
   const handleBack = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 0));
-  };
-
-  const handleSaveDraft = () => {
-    saveDraft();
-    alert("Campaign draft saved successfully!");
   };
 
   const renderStep = () => {
@@ -127,14 +110,11 @@ function CampaignWizardContent() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Suspense fallback={<Skeleton className="w-full h-[200px]" />}>
+          <Suspense fallback={<Skeleton className="w-full h-[1000px]" />}>
             {renderStep()}
           </Suspense>
-          <div className="flex justify-between mt-6">
-            {currentStep > 0 && <Button onClick={handleBack}>Back</Button>}
-            {currentStep === steps.length - 1 && (
-              <Button onClick={handleSaveDraft}>Save Draft</Button>
-            )}
+          <div className="flex mt-2 w-full items-center justify-center">
+            {currentStep > 0 && <Button className="bg-transparent text-primary hover:opacity-80 hover:bg-transparent font-bold p-1" onClick={handleBack}>Back</Button>}
           </div>
         </CardContent>
       </Card>

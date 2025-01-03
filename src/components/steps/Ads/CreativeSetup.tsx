@@ -53,7 +53,7 @@ export default function CreativeSetup({ onNext }: CreativeSetupProps) {
       description: campaignData.description || "",
       callToAction: campaignData.callToAction || "",
       linkUrl: campaignData.linkUrl || "",
-      media: campaignData.media,
+      media: [],
     },
   });
 
@@ -149,19 +149,22 @@ export default function CreativeSetup({ onNext }: CreativeSetupProps) {
 
       <div>
         <Label htmlFor="media">Upload Media</Label>
-        <Label htmlFor="media" className="cursor-pointer flex items-center justify-center w-full border border-dashed rounded-lg p-4 text-gray-600 hover:bg-gray-100 hover:text-gray-900">
+        <Label
+          htmlFor="media"
+          className="cursor-pointer flex items-center justify-center w-full border border-dashed rounded-lg p-4 text-gray-600 hover:bg-gray-100 hover:text-gray-900 relative"
+        >
           <span>
             {media.length > 0
               ? `${media.length} file${media.length > 1 ? "s" : ""} selected`
               : "Choose files"}
           </span>
           <Input
-          id="media"
-          type="file"
-          accept={format === "video" ? "video/*" : "image/*"}
-          multiple={format === "carousel"}
-          className="hidden"
-          {...register("media")}
+            id="media"
+            type="file"
+            accept={format === "video" ? "video/*" : "image/*"}
+            multiple={format === "carousel"}
+            className=" absolute -z-10"
+            {...register("media")}
           />
         </Label>
         {errors.media && (
@@ -173,7 +176,7 @@ export default function CreativeSetup({ onNext }: CreativeSetupProps) {
 
       <div>
         <Label htmlFor="primaryText">Primary Text</Label>
-        <Textarea id="primaryText" {...register("primaryText")} />
+        <Textarea id="primaryText" {...register("primaryText")} placeholder='Enter primary text'/>
         {errors.primaryText && (
           <p className="text-red-500 text-sm mt-1">
             {errors.primaryText.message}
@@ -183,7 +186,7 @@ export default function CreativeSetup({ onNext }: CreativeSetupProps) {
 
       <div>
         <Label htmlFor="headline">Headline</Label>
-        <Input id="headline" {...register("headline")} />
+        <Input id="headline" {...register("headline")} placeholder='Enter headline' />
         {errors.headline && (
           <p className="text-red-500 text-sm mt-1">{errors.headline.message}</p>
         )}
@@ -191,7 +194,7 @@ export default function CreativeSetup({ onNext }: CreativeSetupProps) {
 
       <div>
         <Label htmlFor="description">Description</Label>
-        <Textarea id="description" {...register("description")} />
+        <Textarea id="description" {...register("description")} placeholder='Enter description' />
         {errors.description && (
           <p className="text-red-500 text-sm mt-1">
             {errors.description.message}
@@ -228,7 +231,7 @@ export default function CreativeSetup({ onNext }: CreativeSetupProps) {
 
       <div>
         <Label htmlFor="linkUrl">Landing Page URL</Label>
-        <Input id="linkUrl" type="url" {...register("linkUrl")} />
+        <Input id="linkUrl" type="url" {...register("linkUrl")} placeholder='https://example-landing-page.com' />
         {errors.linkUrl && (
           <p className="text-red-500 text-sm mt-1">{errors.linkUrl.message}</p>
         )}

@@ -21,7 +21,7 @@ const FacebookImageAd = ({ primaryText, headline, cta, media }: FacebookImageAdP
       <div className="p-2">
         <p className="text-sm mb-2">{primaryText}</p>
       </div>
-      <Image src={media[0]} alt="Ad" width={400} height={400} />
+      <Image src={media[0] || "/test.jpg"} alt="Ad" width={400} height={400} className='object-cover size-[400px]' />
       <div className="p-2">
         <h3 className="font-bold text-lg mb-1">{headline}</h3>
         <button className={`${commonStyles.cta} w-full`}>{cta}</button>
