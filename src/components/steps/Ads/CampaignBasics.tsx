@@ -10,7 +10,7 @@ import { useCampaignContext } from "@/context/CampaignFormContext";
 
 const schema = z.object({
   campaignName: z.string().min(1, "Campaign name is required"),
-  budgetAmount: z.number().min(1600, "Budget Amount cannot be less than (NGN) 1600"),
+   dailyBudget: z.number().min(1600, "Budget Amount cannot be less than (NGN) 1600"),
   duration: z.number().min(1, "Duration is Required"),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
@@ -30,7 +30,7 @@ export default function CampaignBasics({ onNext }: CampaignBasicsProps) {
     resolver: zodResolver(schema),
     defaultValues: {
       campaignName: campaignData.campaignName,
-      budgetAmount: campaignData.budgetAmount,
+       dailyBudget: campaignData. dailyBudget,
       startDate: campaignData.startDate,
       endDate: campaignData.endDate,
       duration: 1,
@@ -63,16 +63,16 @@ export default function CampaignBasics({ onNext }: CampaignBasicsProps) {
         <div>
           <h3 className="text-lg font-medium">Budget</h3>
           <div className="mt-2">
-            <Label htmlFor="budgetAmount">Budget Amount(NGN)</Label>
+            <Label htmlFor=" dailyBudget">Budget Amount(NGN)</Label>
             <Input
-              id="budgetAmount"
+              id=" dailyBudget"
               type="number"
-              {...register("budgetAmount", { valueAsNumber: true })}
+              {...register("dailyBudget", { valueAsNumber: true })}
               placeholder="Enter Daily Budget"
             />
-            {errors.budgetAmount ? (
+            {errors. dailyBudget ? (
               <p className="text-red-500 text-sm mt-1">
-                {errors.budgetAmount.message}
+                {errors. dailyBudget.message}
               </p>
             ) : (
               <p className="text-sm text-gray-500 mt-1">

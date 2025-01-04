@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useCampaignContext } from "@/context/CampaignFormContext";
+import { FACEBOOK_CTA_TYPES, getCtaApiValue } from "@/types/facebook";
+
 
 const schema = z.object({
   format: z.enum(["feed", "story", "reels", "carousel", "video", "image"], {
@@ -59,20 +61,24 @@ export default function CreativeSetup({ onNext }: CreativeSetupProps) {
 
   const format = watch("format");
   const media = watch("media");
-  const ctaOptions = [
-    "Shop Now",
-    "Sign Up",
-    "Learn More",
-    "Send Message",
-    "Book Now",
-    "Download",
-    "Get Offer",
-    "Watch More",
-  ];
+  // const ctaOptions = [
+  //   "Shop Now",
+  //   "Sign Up",
+  //   "Learn More",
+  //   "Send Message",
+  //   "Book Now",
+  //   "Download",
+  //   "Get Offer",
+  //   "Watch More",
+  // ];
 
   const onSubmit = (data: z.infer<typeof schema>) => {
-    updateCampaignData(data);
-    onNext(data);
+    const updatedData = {
+      ...data,
+      callToAction: getCtaApiValue(data.callToAction),
+    };
+    updateCampaignData(updatedData);
+    onNext(updatedData);
   };
 
   return (
@@ -213,9 +219,9 @@ export default function CreativeSetup({ onNext }: CreativeSetupProps) {
                 <SelectValue placeholder="Select a CTA" />
               </SelectTrigger>
               <SelectContent>
-                {ctaOptions.map((cta) => (
-                  <SelectItem key={cta} value={cta}>
-                    {cta}
+                {Object.entries(FACEBOOK_CTA_TYPES).map(([apiValue, displayName]) => (
+                  <SelectItem key={apiValue} value={displayName}>
+                    {displayName}
                   </SelectItem>
                 ))}
               </SelectContent>

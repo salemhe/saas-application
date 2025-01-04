@@ -281,3 +281,96 @@ function page() {
 }
 
 export default page
+
+// const handleFacebookTokenSubmission = async (accessToken: string) => {
+  //   if (!user) return;
+  
+  //   try {
+  //     // const tokenURL = `https://graph.facebook.com/debug_token?input_token=${accessToken}&access_token=${accessToken}`;
+  //     // First verify the token is valid
+  //     const tokenVerificationResponse = await fetch(
+  //       `https://graph.facebook.com/debug_token?input_token=${accessToken}&access_token=${accessToken}`
+  //     );
+  
+  //     if (!tokenVerificationResponse.ok) {
+  //       throw new Error('Failed to verify Facebook token');
+  //     }
+  
+  //     // Prepare the request body
+  //     const requestBody = {
+  //       token: accessToken,
+  //       adAccountId: "Dynamic-Ad-Account-ID", // You might want to make this dynamic
+  //       userId: user.uid
+  //     };
+  //     console.log("AccessToken before saving:", accessToken);
+
+  //     // Make the API call
+  //     const response = await fetch("/api/connect-ad-account", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         // Add any additional headers your API needs
+  //         "Accept": "application/json"
+  //       },
+  //       body: JSON.stringify(requestBody)
+  //     });
+  
+  //     // Check if response is ok before trying to parse JSON
+  //     if (!response.ok) {
+  //       // Try to get error message from response
+  //       let errorMessage;
+  //       try {
+  //         const errorData = await response.json();
+  //         errorMessage = errorData.message;
+  //       } catch {
+  //         errorMessage = `HTTP error! status: ${response.status}`;
+  //       }
+  //       throw new Error(errorMessage || "Failed to connect ad account");
+  //     }
+  
+  //     // Ensure we have a valid JSON response
+  //     let responseData;
+  //     try {
+  //       responseData = await response.json();
+  //     } catch {
+  //       throw new Error("Invalid response from server")
+  //     }
+  
+  //     // If we get here, the connection was successful
+  //     // Update Firestore
+  //     const userDocRef = doc(db, "users", user.uid);
+  //     await updateDoc(userDocRef, {
+  //       "accounts.Facebook": {
+  //         accessToken: accessToken,
+  //         isConnected: true,
+  //         connectedAt: new Date().toISOString(),
+  //         lastUpdated: new Date().toISOString()
+  //       }
+  //     });
+  
+  //     // Update local storage
+  //     localStorage.setItem("fb_access_token", accessToken);
+      
+  //     // Update UI state
+  //     setAccounts((prev) =>
+  //       prev.map((acc) =>
+  //         acc.name === "Facebook" ? { ...acc, isConnected: true } : acc
+  //       )
+  //     );
+  
+  //     return responseData;
+  
+  //   } catch (error: any) {
+  //     console.error("Error connecting to Facebook Ads:", error);
+      
+  //     // Show user-friendly error message
+  //     const errorMessage = error.message || "Failed to connect to Facebook Ads";
+  //     // You might want to add a toast or alert here
+  //     alert(errorMessage)
+  //     // Reset states
+  //     setStatus((prev) => ({ ...prev, facebook: false }));
+  //     throw error;
+  //   }
+  // };
+  
+  // Modified login handler with better error handling
