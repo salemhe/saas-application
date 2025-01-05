@@ -31,14 +31,15 @@ export default function ReviewLaunch() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const { accessToken, isTokenExpired, getValidToken, refreshFacebookToken } = useFacebookAuth();
+  const { accessToken, isTokenExpired, getValidToken, refreshFacebookToken } =
+    useFacebookAuth();
   const { campaignData } = useCampaignContext();
 
   useEffect(() => {
     const validateToken = async () => {
       try {
         await getValidToken();
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
         setError("Please reconnect your Facebook account");
       }
@@ -51,27 +52,38 @@ export default function ReviewLaunch() {
 
   const validateCampaignData = () => {
     if (!campaignData) {
-      throw new Error('Campaign data is missing');
+      throw new Error("Campaign data is missing");
     }
 
-    const requiredFields = ['dailyBudget', 'campaignName', 'duration', 'ageMin', 'ageMax'];
-    const missingFields = requiredFields.filter(field => !campaignData[field]);
-    
+    const requiredFields = [
+      "dailyBudget",
+      "campaignName",
+      "duration",
+      "ageMin",
+      "ageMax",
+    ];
+    const missingFields = requiredFields.filter(
+      (field) => !campaignData[field]
+    );
+
     if (missingFields.length > 0) {
-      throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+      throw new Error(`Missing required fields: ${missingFields.join(", ")}`);
     }
 
     const budget = campaignData.dailyBudget;
     if (budget === undefined || budget === null) {
-      throw new Error('Daily budget is required');
+      throw new Error("Daily budget is required");
     }
 
-    const parsedBudget = typeof budget === 'string' 
-      ? parseFloat(budget.replace(/[^0-9.]/g, ''))
-      : Number(budget);
+    const parsedBudget =
+      typeof budget === "string"
+        ? parseFloat(budget.replace(/[^0-9.]/g, ""))
+        : Number(budget);
 
     if (isNaN(parsedBudget) || parsedBudget <= 0) {
-      throw new Error(`Invalid daily budget: ${budget}. Must be a positive number.`);
+      throw new Error(
+        `Invalid daily budget: ${budget}. Must be a positive number.`
+      );
     }
 
     return parsedBudget;
@@ -85,7 +97,7 @@ export default function ReviewLaunch() {
     try {
       const validatedBudget = validateCampaignData();
       const user = auth.currentUser;
-      
+
       if (!user) {
         throw new Error("User not authenticated");
       }
@@ -94,14 +106,16 @@ export default function ReviewLaunch() {
       try {
         // First try getting the existing token
         token = await getValidToken();
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
         // If that fails, try refreshing the token
         try {
           token = await refreshFacebookToken();
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (refreshErr) {
-          throw new Error("Failed to authenticate with Facebook. Please try reconnecting your account.");
+          throw new Error(
+            "Failed to authenticate with Facebook. Please try reconnecting your account."
+          );
         }
       }
 
@@ -111,47 +125,57 @@ export default function ReviewLaunch() {
 
       const userDoc = await getDoc(doc(db, "users", user.uid));
       const userData = userDoc.data() as UserData | undefined;
-      
+
       if (!userData?.accounts?.Facebook?.adAccounts?.length) {
-        throw new Error("No Facebook ad accounts found. Please check your Facebook Business Manager settings.");
+        throw new Error(
+          "No Facebook ad accounts found. Please check your Facebook Business Manager settings."
+        );
       }
-  
+
       if (!userData.accounts.Facebook.pages?.length) {
-        throw new Error("No Facebook pages found. Please connect a Facebook page to your account.");
+        throw new Error(
+          "No Facebook pages found. Please connect a Facebook page to your account."
+        );
       }
-  
+
       const { adAccounts, pages } = userData.accounts.Facebook;
-      
+
       if (!adAccounts?.[0]?.id || !pages?.[0]?.id) {
-        throw new Error("Missing Facebook account information. Please reconnect your Facebook account.");
+        throw new Error(
+          "Missing Facebook account information. Please reconnect your Facebook account."
+        );
       }
 
       const adAccountId = adAccounts[0].id;
       const pageId = pages[0].id;
 
-      const dailyBudgetInCents = Math.max(Math.round(validatedBudget * 100), 100);
-      
+      const dailyBudgetInCents = Math.max(
+        Math.round(validatedBudget * 100),
+        100
+      );
+
       // Ensure minimum duration of 1 day (24 hours)
       const duration = Math.max(Number(campaignData.duration), 1);
-      
+
       // Calculate start time as the next hour to ensure proper scheduling
       const startTime = new Date();
       startTime.setMinutes(0, 0, 0); // Reset minutes and seconds to zero
       startTime.setHours(startTime.getHours() + 1); // Start from next hour
-      
+
       // Calculate end time by adding full days
       const endTime = new Date(startTime.getTime());
       endTime.setDate(endTime.getDate() + duration);
-      
+
       // Validate the time difference is at least 24 hours
-      const timeDifferenceHours = (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
+      const timeDifferenceHours =
+        (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
       if (timeDifferenceHours < 24) {
         throw new Error("Campaign duration must be at least 24 hours");
       }
 
-      console.log('Debug - Start Time:', startTime.toISOString());
-      console.log('Debug - End Time:', endTime.toISOString());
-      console.log('Debug - Duration (hours):', timeDifferenceHours);
+      console.log("Debug - Start Time:", startTime.toISOString());
+      console.log("Debug - End Time:", endTime.toISOString());
+      console.log("Debug - Duration (hours):", timeDifferenceHours);
 
       // Create Campaign
       const campaignResponse = await fetch(
@@ -171,7 +195,9 @@ export default function ReviewLaunch() {
 
       if (!campaignResponse.ok) {
         const errorData = await campaignResponse.json();
-        throw new Error(errorData.error?.message || 'Failed to create campaign');
+        throw new Error(
+          errorData.error?.message || "Failed to create campaign"
+        );
       }
       const createCampaign = await campaignResponse.json();
 
@@ -195,37 +221,44 @@ export default function ReviewLaunch() {
               age_max: parseInt(campaignData.ageMax),
               genders: [1, 2],
               geo_locations: {
-                countries: ["US"]
-              }
+                countries: ["US"],
+              },
             },
             status: "PAUSED",
             start_time: startTime.toISOString(),
             end_time: endTime.toISOString(),
             destination_type: "WEBSITE",
             promoted_object: {
-              page_id: pageId
-            }
+              page_id: pageId,
+            },
           }),
         }
       );
 
-
       if (!adSetResponse.ok) {
         const adSetError = await adSetResponse.json();
-        console.log('Debug - Ad Set Error Response:', adSetError);
-        
+        console.log("Debug - Ad Set Error Response:", adSetError);
+
         // Enhanced error handling for ad set creation
         if (adSetError.error) {
-          switch(adSetError.error.error_subcode) {
+          switch (adSetError.error.error_subcode) {
             case 1487793:
-              throw new Error(`Invalid campaign schedule: ${adSetError.error.error_user_msg || 'Must be at least 24 hours'}`);
+              throw new Error(
+                `Invalid campaign schedule: ${
+                  adSetError.error.error_user_msg || "Must be at least 24 hours"
+                }`
+              );
             case 1487706:
-              throw new Error("Your ad account doesn't have permission to create ads");
+              throw new Error(
+                "Your ad account doesn't have permission to create ads"
+              );
             default:
-              throw new Error(adSetError.error.message || 'Failed to create ad set');
+              throw new Error(
+                adSetError.error.message || "Failed to create ad set"
+              );
           }
         }
-        throw new Error('Failed to create ad set: Unknown error');
+        throw new Error("Failed to create ad set: Unknown error");
       }
 
       const adSetData = await adSetResponse.json();
@@ -249,7 +282,7 @@ export default function ReviewLaunch() {
                 },
                 name: campaignData.headline || "Default headline",
               },
-            }            
+            },
           }),
         }
       );
@@ -257,12 +290,12 @@ export default function ReviewLaunch() {
       if (!creativeResponse.ok) {
         const creativeError = await creativeResponse.json();
         console.error("Debug - Creative Error Response:", creativeError);
-      
+
         throw new Error(
           creativeError.error?.message || "Failed to create creative"
         );
       }
-      
+
       const creativeData = await creativeResponse.json();
 
       // Create Ad
@@ -283,7 +316,7 @@ export default function ReviewLaunch() {
 
       if (!adResponse.ok) {
         const adError = await adResponse.json();
-        throw new Error(adError.error?.message || 'Failed to create ad');
+        throw new Error(adError.error?.message || "Failed to create ad");
       }
       const adResponseData = await adResponse.json();
 
@@ -309,15 +342,18 @@ export default function ReviewLaunch() {
             description: campaignData.description,
             callToAction: campaignData.callToAction,
             linkUrl: campaignData.linkUrl,
-          }
+          },
         },
         createdAt: new Date().toISOString(),
-        lastModified: new Date().toISOString()
+        lastModified: new Date().toISOString(),
       });
 
-      setSuccess("Ad created successfully! Please review and activate it in your Facebook Ads Manager.");
+      setSuccess(
+        "Ad created successfully! Please review and activate it in your Facebook Ads Manager."
+      );
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to create ad";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to create ad";
       setError(errorMessage);
       console.error("Ad Creation Error:", err);
     } finally {
@@ -326,11 +362,7 @@ export default function ReviewLaunch() {
   };
 
   const handleLaunch = async () => {
-    if (campaignData.platform === "facebook") {
-      createFacebookAd();
-    } else {
-      setError("Instagram campaigns are not supported yet.");
-    }
+    createFacebookAd();
   };
 
   const filesArray = Array.from(campaignData.media);
@@ -340,7 +372,8 @@ export default function ReviewLaunch() {
       <h2 className="text-2xl font-bold">Review Your Campaign</h2>
       {(isTokenExpired || !accessToken) && (
         <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded">
-          Your Facebook connection needs to be renewed. Please reconnect your account.
+          Your Facebook connection needs to be renewed. Please reconnect your
+          account.
         </div>
       )}
       <div className="flex flex-col">
@@ -385,10 +418,7 @@ export default function ReviewLaunch() {
           {success}
         </div>
       )}
-      <Button 
-        className="w-full" 
-        onClick={handleLaunch}
-      >
+      <Button className="w-full" onClick={handleLaunch}>
         {isLoading ? "Launching Campaign..." : "Launch Campaign"}
       </Button>
     </div>

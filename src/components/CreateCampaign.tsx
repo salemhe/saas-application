@@ -70,8 +70,8 @@ function CampaignWizardContent() {
         <CardHeader>
           <CardTitle>Campaign Setup</CardTitle>
           <CardDescription>
-            <div className="mb-6 overflow-x-auto">
-              <ol className="flex items-center w-full text-xs md:text-sm font-medium text-center text-gray-500 flex-wrap">
+            <div className="mb-6 overflow-x-auto mt-6">
+              <ol className="flex items-center w-full text-xs md:text-sm font-medium text-center text-gray-500 flex-wrap rounded-lg border-2 border-dashed p-6 gap-4">
                 {steps.map((step, index) => (
                   <li
                     key={index}
