@@ -380,6 +380,7 @@ export default function ReviewLaunch() {
         {Object.entries({
           ...campaignData,
           media: filesArray.map((item: any) => item.name),
+          callToAction: campaignData.callToAction.replace("_", " "),
         }).map(([key, value]) => (
           <div
             key={key}
@@ -403,7 +404,7 @@ export default function ReviewLaunch() {
             media={campaignData.media}
             primaryText={campaignData.primaryText}
             headline={campaignData.headline}
-            cta={campaignData.callToAction}
+            cta={campaignData.callToAction.replace("_", " ")}
             link={campaignData.linkUrl}
           />
         </div>
