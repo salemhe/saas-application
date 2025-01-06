@@ -40,7 +40,7 @@ const Page = () => {
   }, [authenticated]);
 
   return (
-    <main className="flex-1 p-4 md:p-16">
+    <main className="flex-1 p-4 md:p-16 bg-white min-h-screen">
       <button
         className="size-10 bg-gray-50 border border-gray-100 rounded-md flex items-center justify-center mb-2"
         onClick={() => router.back()}

@@ -16,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="relative">
+    <html lang="en" className="relative scroll-smooth">
       <body className={clsx(dmSans.className, "antialiased bg-[#EAEEFE]")}>
         {children}
         <Toaster />

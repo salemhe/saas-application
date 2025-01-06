@@ -4,7 +4,7 @@ import { CardTitle } from "./ui/card";
 import { CardDescription } from "./ui/card";
 import { FaInstagram, FaFacebook, FaYoutube } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
-import { PieChart, Paintbrush, Megaphone, LineChart, Plus } from "lucide-react";
+import { PieChart, Paintbrush, Megaphone, LineChart } from "lucide-react";
 // import Image1 from "@/assets/Tiger.png";
 // import Image2 from "@/assets/Screenshot.png";
 // import Image3 from "@/assets/image1.png";
@@ -12,27 +12,32 @@ import { PieChart, Paintbrush, Megaphone, LineChart, Plus } from "lucide-react";
 import Link from "next/link";
 import { useContext } from "react";
 import { Campaign } from "@/context/CampaignContext";
+import { CampaignPopup } from "./Campaign-Popup";
 
 const AdsRunningSection = () => {
-
   // const images = [Image1, Image2, Image3];
 
   const { isConnected } = useContext(Campaign);
 
-
   return (
-    <div className="p-4 md:p-16 sm:p-4 sm:mt-10 mt-8">
+    <div id="start-campaign" className="p-4 md:p-16 sm:p-4 sm:mt-10 mt-8">
       <div className="mb-12 flex flex-col md:flex-row justify-between items-center gap-6">
         {/* Text Section */}
         <div className="md:w-1/2 text-left mt-6">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-3">Boost Your Ad Campaigns</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-3">
+            Boost Your Ad Campaigns
+          </h1>
           <p className="text-gray-600 text-sm md:text-base max-w-lg">
-            From understanding your audience to tracking success, our tools and platforms ensure your campaigns are impactful.
+            From understanding your audience to tracking success, our tools and
+            platforms ensure your campaigns are impactful.
           </p>
-          <Link href="/campaign/create" className={`mt-6 items-center text-white bg-primary py-3 px-5 rounded-lg hover:opacity-95 transition-all duration-200 w-max ${isConnected ? " flex" : "hidden"}`}>
-            <Plus className="w-4 h-4 mr-2" size={24} />
-            Create Campaign
-          </Link>
+          <div
+            className={`mt-6 ${
+              isConnected ? " flex" : "hidden"
+            }`}
+          >
+            <CampaignPopup />
+          </div>
         </div>
 
         {/* Grid Section */}
@@ -42,7 +47,9 @@ const AdsRunningSection = () => {
             <CardContent className="flex flex-col items-center text-center p-3">
               <PieChart className="text-[#5A67D8] w-5 h-5 mb-1" />
               <CardTitle className="text-gray-800 text-sm">Analyze</CardTitle>
-              <CardDescription className="text-gray-600 text-xs">Understand your audience better.</CardDescription>
+              <CardDescription className="text-gray-600 text-xs">
+                Understand your audience better.
+              </CardDescription>
             </CardContent>
           </Card>
 
@@ -51,7 +58,9 @@ const AdsRunningSection = () => {
             <CardContent className="flex flex-col items-center text-center p-3">
               <Paintbrush className="text-[#319795] w-5 h-5 mb-1" />
               <CardTitle className="text-gray-800 text-sm">Design</CardTitle>
-              <CardDescription className="text-gray-600 text-xs">Create stunning visuals easily.</CardDescription>
+              <CardDescription className="text-gray-600 text-xs">
+                Create stunning visuals easily.
+              </CardDescription>
             </CardContent>
           </Card>
 
@@ -60,7 +69,9 @@ const AdsRunningSection = () => {
             <CardContent className="flex flex-col items-center text-center p-3">
               <Megaphone className="text-[#D69E2E] w-5 h-5 mb-1" />
               <CardTitle className="text-gray-800 text-sm">Launch</CardTitle>
-              <CardDescription className="text-gray-600 text-xs">Deploy your ads effectively.</CardDescription>
+              <CardDescription className="text-gray-600 text-xs">
+                Deploy your ads effectively.
+              </CardDescription>
             </CardContent>
           </Card>
 
@@ -69,7 +80,9 @@ const AdsRunningSection = () => {
             <CardContent className="flex flex-col items-center text-center p-3">
               <LineChart className="text-[#E53E3E] w-5 h-5 mb-1" />
               <CardTitle className="text-gray-800 text-sm">Measure</CardTitle>
-              <CardDescription className="text-gray-600 text-xs">Track your campaign{"'"}s success.</CardDescription>
+              <CardDescription className="text-gray-600 text-xs">
+                Track your campaign{"'"}s success.
+              </CardDescription>
             </CardContent>
           </Card>
         </div>
@@ -96,14 +109,17 @@ const AdsRunningSection = () => {
         </div>
 
         {/* Description */}
-        <p className="text-base text-gray-900 mt-8">Additional Platforms Include</p>
+        <p className="text-base text-gray-900 mt-8">
+          Additional Platforms Include
+        </p>
         <p className="mt-2">
-          <span className="text-purple-600 underline font-semibold">Billboard</span>
+          <span className="text-purple-600 underline font-semibold">
+            Billboard
+          </span>
           <span className="mx-1">and</span>
           <span className="text-purple-600 underline font-semibold">Radio</span>
         </p>
       </div>
-
 
       {/* Grid for Images */}
       {/* <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -127,6 +143,3 @@ const AdsRunningSection = () => {
 };
 
 export default AdsRunningSection;
-
-
-

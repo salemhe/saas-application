@@ -1,14 +1,7 @@
 export const mockUser = {
     name: 'John Doe',
-    avatar: '/placeholder.svg?height=40&width=40',
+    avatar: '/avatar.jpg',
   };
-  
-  export const mockAd = {
-    title: 'Amazing Product',
-    description: 'You need this in your life! Click now to learn more.',
-    cta: 'Shop Now',
-  };
-  
   export const commonStyles = {
     adContainer: 'border border-gray-200 rounded-lg overflow-hidden max-w-sm mx-auto my-4',
     header: 'flex items-center p-2 bg-white',

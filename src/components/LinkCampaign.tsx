@@ -8,6 +8,7 @@ import { Campaign } from '@/context/CampaignContext';
 import React, { useEffect, useState } from 'react';
 import { auth, db } from "../../firebase";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
+import { useRouter } from 'next/navigation';
 
 interface FacebookAuthResponse {
   authResponse: {
@@ -37,6 +38,7 @@ declare global {
 
 export const LinkCampaign = () => {
   const { isConnected, setIsConnected } = useContext(Campaign);
+  const router = useRouter()
 
   const [accounts, setAccounts] = useState([
     { name: "Facebook", icon: "https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg",  isConnected  },
@@ -44,7 +46,7 @@ export const LinkCampaign = () => {
   ]);
   const user = auth.currentUser;
   const images = [Image1, Image2, Image3];
-
+  
   // const [status, setStatus] = useState<ConnectionStatus>({
   //   facebook: false,
   // });
@@ -379,6 +381,9 @@ const handleDisconnect = async (accountName: string) => {
 };
 
 const handleAccountToggle = async (accountName: string, isCurrentlyConnected: boolean) => {
+  if (!isConnected) {
+    router.push("#start-campaign")
+  }
   setIsConnected(!isConnected);
   try {
     if (isCurrentlyConnected) {
@@ -424,7 +429,7 @@ const handleAccountToggle = async (accountName: string, isCurrentlyConnected: bo
         {accounts.map((account) => (
           <div
             key={account.name}
-            className="flex items-center justify-between p-4 border rounded-lg shadow-sm hover:shadow-md"
+            className="flex items-center justify-between p-4 border rounded-lg"
           >
             <div className="flex items-center space-x-4">
               <Image
@@ -438,10 +443,10 @@ const handleAccountToggle = async (accountName: string, isCurrentlyConnected: bo
             </div>
             <button
               onClick={() => handleAccountToggle(account.name, account.isConnected)}
-              className={`px-4 py-2 rounded-lg transition-all duration-200 ${
+              className={`px-4 py-2 rounded-lg transition-all duration-200 border-2 border-blue-500 ${
                 account.isConnected
-                  ? "bg-red-500 hover:bg-red-600 text-white"
-                  : "bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white"
+                  ? "bg-red-500 hover:bg-white border-red-500 text-white active:text-red-500 active:bg-white hover:text-red-500"
+                  : "bg-blue-500 hover:bg-white border-blue-500 text-white hover:text-blue-500 active:bg-white active:text-blue-500"
               }`}
             >
               {account.isConnected ? "Disconnect Account" : "Connect Account"}
