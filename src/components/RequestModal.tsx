@@ -15,7 +15,7 @@ export function RequestModal({ isOpen, onClose }: RequestModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] max-h-full overflow-y-auto">
         <DialogHeader>
           <DialogTitle>New Ad Request</DialogTitle>
           <DialogDescription>
@@ -26,6 +26,8 @@ export function RequestModal({ isOpen, onClose }: RequestModalProps) {
           <TabsList className="grid w-full grid-cols-2 mb-4">
             <TabsTrigger value="facebook">Facebook</TabsTrigger>
             <TabsTrigger value="instagram">Instagram</TabsTrigger>
+          </TabsList>
+          <TabsList className="grid w-full grid-cols-2 mb-4">
             <TabsTrigger value="billboard">Billboard</TabsTrigger>
             <TabsTrigger value="radio">Radio</TabsTrigger>
           </TabsList>
