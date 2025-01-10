@@ -4,7 +4,7 @@ import { CardTitle } from "./ui/card";
 import { CardDescription } from "./ui/card";
 import { FaInstagram, FaFacebook, FaYoutube } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
-import { PieChart, Paintbrush, Megaphone, LineChart } from "lucide-react";
+import { PieChart, Paintbrush, Megaphone, LineChart, Store } from "lucide-react";
 // import Image1 from "@/assets/Tiger.png";
 // import Image2 from "@/assets/Screenshot.png";
 // import Image3 from "@/assets/image1.png";
@@ -12,12 +12,15 @@ import { PieChart, Paintbrush, Megaphone, LineChart } from "lucide-react";
 import Link from "next/link";
 import { useContext } from "react";
 import { Campaign } from "@/context/CampaignContext";
-import { CampaignPopup } from "./Campaign-Popup";
+// import { CampaignPopup } from "./Campaign-Popup";
+import { Button } from "./ui/button";
+import { useRouter } from "next/navigation";
 
 const AdsRunningSection = () => {
   // const images = [Image1, Image2, Image3];
 
   const { isConnected } = useContext(Campaign);
+  const router = useRouter();
 
   return (
     <div id="start-campaign" className="p-4 md:p-16 sm:p-4 sm:mt-10 mt-8">
@@ -36,7 +39,8 @@ const AdsRunningSection = () => {
               isConnected ? " flex" : "hidden"
             }`}
           >
-            <CampaignPopup />
+            {/* <CampaignPopup /> */}
+            <Button onClick={() => router.push("/campaign/manage") }><Store className="w-4 h-4 mr-2" size={24} /> Manage Campaign</Button>
           </div>
         </div>
 
